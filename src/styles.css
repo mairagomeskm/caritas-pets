@@ -119,3 +119,14 @@
 @utility animate-story {
   animation: story-progress 5s linear forwards;
 }
+
+/* Remove the Lovable badge/watermark */
+#lovable-badge-wrap,
+#lovable-badge,
+/* [id*='lovable'], */
+a[href*='lovable.dev'] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

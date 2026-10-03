@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Menu, Home, PawPrint, HandCoins, Search, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import logo from "@/assets/logo.jpg.asset.json";
+
 
 type Props = {
   showBack: boolean;
@@ -22,7 +22,7 @@ export function FloatingHeader({ showBack, onBack, onMenu, showAuth, onAuth, onF
           </button>
         )}
         <Link to="/" className="flex items-center gap-2 text-2xl font-bold italic tracking-tight text-primary">
-          <img src={logo.url} alt="Logo Carita's Pets" className="h-11 w-11 rounded-full object-cover" />
+          <img src="/favicon.png" alt="Logo Carita's Pets" className="h-11 w-11 rounded-full object-cover" />
           <span className="hidden sm:inline">Carita's Pets</span>
         </Link>
         <nav className="ml-6 hidden gap-5 lg:flex">
