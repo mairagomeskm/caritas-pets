@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/AuthForms";
 import { PetForm } from "@/components/PetForm";
 import { PetList } from "@/components/PetList";
+import { FileUploadDropzone } from "@/components/ui/file-upload-dropzone";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Administração — Carita's Pets" }, { name: "description", content: "Painel de administração." }] }),
@@ -135,7 +136,12 @@ function CampaignsTab() {
             <option value="">—</option>{pets.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </Field>
-        <Field label="Foto"><Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></Field>
+        <FileUploadDropzone
+          file={file}
+          onFileChange={setFile}
+          label="Foto da Campanha *"
+          hint="Foto da cirurgia, tratamento ou laudo médico (JPG ou PNG até 8MB)"
+        />
         <div className="flex flex-wrap gap-2">
           <Button type="submit">Enviar</Button>
           <Button type="button" variant="secondary" onClick={() => toast.success("Rascunho guardado.")}>Salvar para continuar depois</Button>
@@ -184,7 +190,12 @@ function MissingTab() {
         <Field label="Onde sumiu"><Input required value={f.location} onChange={(e) => setF({ ...f, location: e.target.value })} /></Field>
         <Field label="Descrição"><Input value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></Field>
         <Field label="Contato"><Input value={f.contact} onChange={(e) => setF({ ...f, contact: e.target.value })} /></Field>
-        <Field label="Foto"><Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></Field>
+        <FileUploadDropzone
+          file={file}
+          onFileChange={setFile}
+          label="Foto do Pet Desaparecido *"
+          hint="Foto nítida e recente (JPG, PNG até 8MB)"
+        />
         <Button type="submit">Publicar</Button>
       </form>
       <ul className="vintage-card h-fit divide-y">

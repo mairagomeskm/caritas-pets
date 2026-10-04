@@ -79,6 +79,17 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
         <SheetContent side="right" className="w-80 border-l-2 border-primary/40 bg-accent p-0 text-accent-foreground">
           <SheetTitle className="px-6 pb-2 pt-6 text-xl italic text-primary">Menu</SheetTitle>
+          {user && (
+            <div className="border-b border-primary/25 bg-card/40 px-6 py-3">
+              <p className="text-xs text-muted-foreground">Conectado como</p>
+              <p className="truncate font-semibold text-primary">{user.email}</p>
+              {isAdmin && (
+                <span className="mt-1 inline-block rounded bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                  Administrador
+                </span>
+              )}
+            </div>
+          )}
           {draftKey && (
             <div className="mx-4 mb-3 rounded-md border border-primary/40 bg-card p-3 text-sm">
               Você tem {DRAFT_LABELS[draftKey]} em andamento. Deseja continuar?

@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Field } from "@/components/AuthForms";
 import { REGIONS } from "@/lib/regions";
 
+import { FileUploadDropzone } from "@/components/ui/file-upload-dropzone";
+
 const EMPTY = { name: "", species: "cao", age_label: "", is_puppy: false, region: "Plano Piloto", description: "", organization_id: "" };
 
 export function PetForm({ onSaved, orgs }: { onSaved: () => void; orgs?: { id: string; name: string }[] }) {
@@ -31,42 +33,57 @@ export function PetForm({ onSaved, orgs }: { onSaved: () => void; orgs?: { id: s
       if (error) throw error;
       d.reset();
       setFile(null);
-      toast.success("Pet cadastrado!");
+      toast.success("Pet cadastrado com sucesso!");
       onSaved();
     } catch {
-      toast.error("Não foi possível cadastrar.");
+      toast.error("Não foi possível cadastrar o pet.");
     }
     setBusy(false);
   };
 
   return (
-    <form onSubmit={submit} className="vintage-card space-y-3 p-5">
-      <h2 className="text-xl font-bold">Cadastrar pet</h2>
+    <form onSubmit={submit} className="vintage-card space-y-4 p-6">
+      <div>
+        <h2 className="text-2xl font-bold text-primary">Cadastrar pet para adoção</h2>
+        <p className="text-sm text-muted-foreground">Preencha as informações do animal para que ele encontre uma família amorosa no DF.</p>
+      </div>
+
+      <FileUploadDropzone
+        file={file}
+        onFileChange={setFile}
+        label="Foto do Pet *"
+        hint="Envie uma foto clara e nítida do pet (JPG, PNG ou WEBP até 8MB)"
+      />
+
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Nome"><Input value={v.name} onChange={(e) => d.update({ name: e.target.value })} /></Field>
-        <Field label="Idade"><Input placeholder="ex: 3 meses" value={v.age_label} onChange={(e) => d.update({ age_label: e.target.value })} /></Field>
+        <Field label="Nome do Pet *"><Input placeholder="ex: Pipoca" value={v.name} onChange={(e) => d.update({ name: e.target.value })} /></Field>
+        <Field label="Idade estimada *"><Input placeholder="ex: 3 meses, 2 anos" value={v.age_label} onChange={(e) => d.update({ age_label: e.target.value })} /></Field>
         <Field label="Espécie">
           <select className="h-9 w-full rounded-md border bg-card px-3" value={v.species} onChange={(e) => d.update({ species: e.target.value })}>
             <option value="cao">Cão</option><option value="gato">Gato</option>
           </select>
         </Field>
-        <Field label="Região">
+        <Field label="Região do DF">
           <select className="h-9 w-full rounded-md border bg-card px-3" value={v.region} onChange={(e) => d.update({ region: e.target.value })}>
             {REGIONS.slice(1).map((r) => <option key={r}>{r}</option>)}
           </select>
         </Field>
         {orgs && (
-          <Field label="ONG / Protetor">
+          <Field label="ONG / Protetor Responsável">
             <select className="h-9 w-full rounded-md border bg-card px-3" value={v.organization_id} onChange={(e) => d.update({ organization_id: e.target.value })}>
-              <option value="">—</option>
+              <option value="">Independente (Particular)</option>
               {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
             </select>
           </Field>
         )}
-        <Field label="Foto"><Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></Field>
       </div>
-      <label className="flex items-center gap-2"><input type="checkbox" checked={v.is_puppy} onChange={(e) => d.update({ is_puppy: e.target.checked })} /> É filhote</label>
-      <Field label="Descrição"><Input value={v.description} onChange={(e) => d.update({ description: e.target.value })} /></Field>
+      <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+        <input type="checkbox" className="h-4 w-4 rounded border-primary/40 text-primary" checked={v.is_puppy} onChange={(e) => d.update({ is_puppy: e.target.checked })} />
+        É filhote
+      </label>
+      <Field label="História e Temperamento do Pet">
+        <Input placeholder="Conte um pouco sobre a personalidade, sociabilidade e hábitos..." value={v.description} onChange={(e) => d.update({ description: e.target.value })} />
+      </Field>
       <div className="flex flex-wrap gap-2">
         <Button type="submit" disabled={busy}>Enviar</Button>
         <Button type="button" variant="secondary" onClick={() => toast.success("Rascunho guardado.")}>Salvar para continuar depois</Button>
