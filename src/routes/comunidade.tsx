@@ -23,7 +23,6 @@ import {
   ArrowRight,
   HeartHandshake,
   PawPrint,
-  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,17 +36,17 @@ import { FilterPill } from "@/components/FilterPill";
 export const Route = createFileRoute("/comunidade")({
   head: () => ({
     meta: [
-      { title: "Comunidade & Resgatos UnB — Carita's Pets" },
+      { title: "Comunidade — Carita's Pets" },
       {
         name: "description",
         content:
-          "Mural da comunidade Carita's Pets: projeto parceiro Resgatos UnB por Bruna Miranda, histórias de finais felizes e dicas de cuidados.",
+          "Mural da comunidade Carita's Pets: finais felizes de pets adotados, iniciativas parceiras como o Resgatados UnB e dicas de cuidados.",
       },
-      { property: "og:title", content: "Comunidade Carita's & Resgatos UnB" },
+      { property: "og:title", content: "Comunidade Carita's & Resgatados UnB" },
       {
         property: "og:description",
         content:
-          "Conheça o projeto Resgatos UnB, veja os gatinhos para adoção responsável e acompanhe depoimentos emocionantes.",
+          "Veja histórias de animais adotados com suas famílias, perfil do projeto Resgatados UnB e orientações de posse responsável.",
       },
     ],
   }),
@@ -72,7 +71,7 @@ type Article = {
 const ARTICLES: Article[] = [
   {
     cat: "Conheça nossas ONGs parceiras",
-    title: "Resgatos UnB: Cuidados, Ciência e Adoção Responsável no Campus Darcy Ribeiro",
+    title: "Resgatados UnB: Cuidados, Ciência e Adoção Responsável no Campus Darcy Ribeiro",
     summary:
       "Gerido por Bruna Miranda, estudante de Farmácia, o projeto cuida da saúde e busca lares seguros para cerca de 50 gatos da Universidade de Brasília.",
     photo: "/resgatos-unb.png",
@@ -129,27 +128,8 @@ type Post = {
   pets: { name: string; photo_url: string | null } | null;
 };
 
+// Somente pets que já foram adotados (finais felizes da comunidade)
 const DEFAULT_POSTS: Post[] = [
-  {
-    id: "sample-resgatos-1",
-    pet_id: "seed-violeta",
-    media_url: "/pets/violeta.jpg",
-    media_type: "image",
-    caption:
-      "Violeta pronta para encher um novo lar de alegria! Vacinada contra a raiva, vermifugada e com castração 100% garantida pelo projeto Resgatos UnB da Bruna Miranda 💚",
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-    pets: { name: "Violeta (Resgatos UnB)", photo_url: "/pets/violeta.jpg" },
-  },
-  {
-    id: "sample-resgatos-2",
-    pet_id: "seed-ana",
-    media_url: "/pets/ana.jpg",
-    media_type: "image",
-    caption:
-      "A linda mãezinha Ana passou pelo protocolo sanitário completo da UnB, está castrada, vacinada e aguarda um lar bem seguro e carinhoso!",
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
-    pets: { name: "Ana (Resgatos UnB)", photo_url: "/pets/ana.jpg" },
-  },
   {
     id: "sample-1",
     pet_id: "seed-1",
@@ -192,7 +172,8 @@ type BrunaPet = {
   healthChecks: string[];
 };
 
-const BRUNA_PETS: BrunaPet[] = [
+// Gatos que estão para adoção pelo projeto Resgatados UnB (aparecem ao clicar no perfil)
+const RESGATADOS_PETS: BrunaPet[] = [
   {
     id: "seed-violeta",
     name: "Violeta",
@@ -279,7 +260,6 @@ function ComunidadePage() {
   const [viewer, setViewer] = useState<{ posts: Post[]; i: number } | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
-  const [activeProfileTab, setActiveProfileTab] = useState<"sobre" | "gatos">("sobre");
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [likes, setLikes] = useState<Record<string, number>>({});
   const [userLikes, setUserLikes] = useState<Record<string, boolean>>({});
@@ -337,7 +317,7 @@ function ComunidadePage() {
     return [...m.values()];
   }, [posts]);
 
-  // Feed equilibrado e filtrado
+  // Feed equilibrado e filtrado (somente finais felizes e artigos)
   const feed = useMemo(() => {
     const ps: FeedItem[] = [...posts].map((post) => ({ kind: "post", post }));
     const as: FeedItem[] = ARTICLES.map((a) => ({ kind: "article", a }));
@@ -352,11 +332,7 @@ function ComunidadePage() {
     if (cat === "Todos") return out;
     if (cat === "Finais Felizes") return out.filter((f) => f.kind === "post");
     if (cat === "Projetos & ONGs") {
-      return out.filter(
-        (f) =>
-          (f.kind === "article" && f.a.cat === "Conheça nossas ONGs parceiras") ||
-          (f.kind === "post" && (f.post.id.includes("resgatos") || f.post.caption?.includes("UnB"))),
-      );
+      return out.filter((f) => f.kind === "article" && f.a.cat === "Conheça nossas ONGs parceiras");
     }
     return out.filter((f) => f.kind === "article" && f.a.cat === "Dicas de Cuidados");
   }, [posts, cat]);
@@ -434,9 +410,9 @@ function ComunidadePage() {
   };
 
   const handleShareBrunaProfile = async () => {
-    const title = "Projeto Resgatos UnB — Bruna Miranda";
+    const title = "Projeto Resgatados UnB — Bruna Miranda";
     const text =
-      "Conheça o projeto Resgatos UnB liderado por Bruna Miranda na Universidade de Brasília: acolhimento, cuidados de saúde e adoção responsável de gatos!";
+      "Conheça o projeto Resgatados UnB liderado por Bruna Miranda na Universidade de Brasília: acolhimento, cuidados de saúde e adoção responsável de gatos!";
     if (navigator.share) {
       await navigator.share({ title, text, url: window.location.href }).catch(() => {});
     } else {
@@ -463,7 +439,7 @@ function ComunidadePage() {
               Comunidade Carita's
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              Acompanhe novidades de pets adotados, iniciativas parceiras e orientações de posse responsável.
+              Acompanhe novidades de pets já adotados (Finais Felizes), projetos parceiros e orientações de posse responsável.
             </p>
           </div>
 
@@ -477,13 +453,13 @@ function ComunidadePage() {
         </div>
       </header>
 
-      {/* Carrossel de Stories Limpo */}
+      {/* Carrossel de Stories Limpo (Apenas pets adotados) */}
       {groups.length > 0 && (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Stories & Atualizações Recentes
+              Diário dos Adotados (Stories)
             </h2>
             <span className="text-xs text-muted-foreground">Toque para ver</span>
           </div>
@@ -543,14 +519,11 @@ function ComunidadePage() {
       </div>
 
       {/* ============================================================ */}
-      {/* CARD DO PERFIL RESGATOS UNB (CLIQUE PARA VER AS INFORMAÇÕES) */}
+      {/* CARD DO PERFIL RESGATADOS UNB (CLIQUE PARA VER OS GATOS)     */}
       {/* ============================================================ */}
       {(cat === "Todos" || cat === "Projetos & ONGs") && (
         <section
-          onClick={() => {
-            setActiveProfileTab("sobre");
-            setShowProfileModal(true);
-          }}
+          onClick={() => setShowProfileModal(true)}
           className="group relative cursor-pointer overflow-hidden rounded-2xl border border-emerald-500/30 bg-card p-5 shadow-xs transition-all duration-300 hover:border-emerald-500 hover:shadow-md hover:-translate-y-0.5 sm:p-6"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -559,7 +532,7 @@ function ComunidadePage() {
               <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-2xl border-2 border-emerald-500/20 bg-white p-2 shadow-xs shrink-0">
                 <img
                   src="/resgatos-unb.png"
-                  alt="Resgatos UnB"
+                  alt="Resgatados UnB"
                   className="h-full w-full object-contain rounded-xl"
                 />
                 <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs ring-2 ring-card">
@@ -574,16 +547,16 @@ function ComunidadePage() {
                     Projeto Parceiro Oficial
                   </span>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <MapPin className="h-3 w-3 text-emerald-600" /> UnB Darcy Ribeiro
+                    <MapPin className="h-3 w-3 text-emerald-600" /> Universidade de Brasília (UnB)
                   </span>
                 </div>
 
                 <h2 className="text-lg sm:text-xl font-extrabold text-foreground group-hover:text-emerald-600 transition-colors">
-                  Projeto Resgatos UnB — Bruna Miranda
+                  Perfil: Resgatados UnB — Bruna Miranda
                 </h2>
 
                 <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
-                  Adoção responsável e cuidados de saúde felina no campus da Universidade de Brasília.
+                  Clique aqui para ver a história do projeto e os 4 gatos disponíveis para adoção responsável.
                 </p>
 
                 <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
@@ -603,7 +576,7 @@ function ComunidadePage() {
                 variant="outline"
                 className="rounded-full border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 group-hover:border-emerald-600 flex items-center gap-1.5 font-semibold text-xs sm:text-sm"
               >
-                <span>Ver Informações & Gatos</span>
+                <span>Ver Perfil & Gatos</span>
                 <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </div>
@@ -611,12 +584,12 @@ function ComunidadePage() {
         </section>
       )}
 
-      {/* Grid Principal do Mural (Posts e Artigos) */}
+      {/* Grid Principal do Mural (Apenas Finais Felizes e Artigos Educativos) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-primary" />
-            Publicações da Comunidade ({feed.length})
+            Mural da Comunidade ({feed.length})
           </h2>
         </div>
 
@@ -631,7 +604,7 @@ function ComunidadePage() {
 
           {feed.map((f) =>
             f.kind === "post" ? (
-              /* Card de Post do Mural */
+              /* Card de Post do Mural (Finais Felizes de pets adotados) */
               <article
                 key={f.post.id}
                 className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
@@ -657,7 +630,7 @@ function ComunidadePage() {
                       </div>
                     </div>
                     <span className="rounded-full bg-secondary/80 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                      {f.post.caption?.includes("UnB") ? "Resgatos UnB" : "Final Feliz"}
+                      Final Feliz
                     </span>
                   </div>
 
@@ -693,7 +666,7 @@ function ComunidadePage() {
                   <button
                     onClick={() =>
                       handleSharePost(
-                        `Publicação: ${f.post.pets?.name ?? "Pet"}`,
+                        `Final Feliz: ${f.post.pets?.name ?? "Pet"}`,
                         f.post.caption ?? "Confira esta história no Carita's Pets!",
                       )
                     }
@@ -728,7 +701,7 @@ function ComunidadePage() {
                             : "bg-emerald-600 text-white"
                         }`}
                       >
-                        {f.a.isResgatos ? "Resgatos UnB" : f.a.cat}
+                        {f.a.isResgatos ? "Resgatados UnB" : f.a.cat}
                       </span>
                     </div>
                   </div>
@@ -751,7 +724,6 @@ function ComunidadePage() {
                   <button
                     onClick={() => {
                       if (f.a.isResgatos) {
-                        setActiveProfileTab("sobre");
                         setShowProfileModal(true);
                       } else {
                         setSelectedArticle(f.a);
@@ -770,7 +742,7 @@ function ComunidadePage() {
       </div>
 
       {/* ============================================================ */}
-      {/* MODAL COMPLETO: PERFIL & INFORMAÇÕES RESGATOS UNB            */}
+      {/* MODAL COMPLETO: AO CLICAR APARECEM AS INFORMAÇÕES E OS GATOS */}
       {/* ============================================================ */}
       <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl p-0 border border-emerald-500/30">
@@ -781,7 +753,7 @@ function ComunidadePage() {
                 <div className="h-20 w-20 rounded-2xl bg-white p-2 shadow-lg ring-2 ring-emerald-400/40 shrink-0">
                   <img
                     src="/resgatos-unb.png"
-                    alt="Logo Resgatos UnB"
+                    alt="Logo Resgatados UnB"
                     className="h-full w-full object-contain"
                   />
                 </div>
@@ -790,11 +762,11 @@ function ComunidadePage() {
                     <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold backdrop-blur-md">
                       🎓 Projeto UnB
                     </span>
-                    <span className="text-xs text-emerald-200">Campus Darcy Ribeiro</span>
+                    <span className="text-xs text-emerald-200">Campus Darcy Ribeiro — Brasília/DF</span>
                   </div>
                   <h3 className="text-2xl font-extrabold tracking-tight">Bruna Miranda</h3>
                   <p className="text-xs sm:text-sm text-emerald-100 font-medium">
-                    Gestora do Projeto Resgatos UnB • Estudante de Farmácia (UnB)
+                    Gestora do Projeto Resgatados UnB • Estudante de Farmácia (UnB)
                   </p>
                 </div>
               </div>
@@ -804,7 +776,7 @@ function ComunidadePage() {
                   size="sm"
                   variant="secondary"
                   onClick={handleShareBrunaProfile}
-                  className="rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/30 border-0 text-xs"
+                  className="rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/30 border-0 text-xs font-semibold"
                 >
                   <Share2 className="h-3.5 w-3.5 mr-1" /> Compartilhar
                 </Button>
@@ -812,180 +784,142 @@ function ComunidadePage() {
             </div>
           </div>
 
-          {/* Abas Internas do Modal: Sobre o Projeto e Gatinhos */}
-          <div className="border-b border-border/50 bg-muted/20 px-6 pt-3 flex gap-4">
-            <button
-              onClick={() => setActiveProfileTab("sobre")}
-              className={`pb-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeProfileTab === "sobre"
-                  ? "border-emerald-600 text-emerald-600 dark:text-emerald-400"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <BookOpen className="h-4 w-4" />
-              <span>Sobre o Projeto</span>
-            </button>
-
-            <button
-              onClick={() => setActiveProfileTab("gatos")}
-              className={`pb-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeProfileTab === "gatos"
-                  ? "border-emerald-600 text-emerald-600 dark:text-emerald-400"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <PawPrint className="h-4 w-4" />
-              <span>Gatinhos para Adoção ({BRUNA_PETS.length})</span>
-            </button>
-          </div>
-
-          {/* Corpo do Modal */}
+          {/* Corpo do Modal: Informações + Gatos Visíveis Imediatamente */}
           <div className="p-6 space-y-6">
-            {activeProfileTab === "sobre" ? (
-              <div className="space-y-6">
-                {/* Descrição enviada pelo usuário */}
-                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-emerald-600 dark:text-emerald-400">
-                      <GraduationCap className="h-5 w-5" />
-                    </span>
-                    <div className="space-y-1.5">
-                      <h4 className="text-sm font-bold text-foreground">
-                        Descrição Oficial do Projeto
-                      </h4>
-                      <p className="text-sm sm:text-base leading-relaxed text-foreground/95 italic">
-                        "A Universidade de Brasília (UnB) tem um projeto chamado Resgatos UnB, que visa a adoção responsável dos gatos que vivem no campus. O projeto, gerido pela estudante de Farmácia Bruna Miranda, busca garantir as melhores condições de saúde e vida para os animais, além de encontrar lares para cerca de 50 gatos encontrados. O processo de resgate e adoção é complexo, envolvendo cuidados médicos, vacinação e acompanhamento pós-adoção para garantir a adaptação dos gatos aos novos lares."
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4 Pontos Chave */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                      <Users className="h-4 w-4" />
-                      <span>~50 Gatos no Campus</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Monitoramento diário e assistência à população felina do campus Darcy Ribeiro.
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                      <Stethoscope className="h-4 w-4" />
-                      <span>Gestão em Farmácia</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Triagem de saúde, desparasitação e medicamentos geridos pela estudante Bruna Miranda.
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                      <Syringe className="h-4 w-4" />
-                      <span>Protocolo Sanitário Completo</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Vacinação antirrábica, testes FIV/FeLV e castração garantida para todos os resgatados.
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
-                      <ShieldCheck className="h-4 w-4" />
-                      <span>Acompanhamento Pós-Adoção</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Verificação de segurança (telas) e acompanhamento próximo para a perfeita adaptação familiar.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Chamada para ver os gatinhos */}
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl bg-secondary/40 p-4 border border-border/60">
-                  <div className="text-xs sm:text-sm text-foreground">
-                    <span className="font-bold">Quer conhecer os gatinhos prontos para adoção?</span>
-                    <p className="text-xs text-muted-foreground">Violeta, Higor, Rosa e a mãezinha Ana estão aguardando um lar!</p>
-                  </div>
-                  <Button
-                    onClick={() => setActiveProfileTab("gatos")}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold"
-                  >
-                    Ver Gatos para Adoção
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              /* Aba: Gatinhos para Adoção */
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Gatinhos resgatados pela equipe da UnB com protocolos de vacinação, exames e castração.
+            {/* Descrição oficial do projeto */}
+            <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-5">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-emerald-600 dark:text-emerald-400">
+                  <GraduationCap className="h-5 w-5" />
+                </span>
+                <div className="space-y-1.5">
+                  <h4 className="text-sm font-bold text-foreground">
+                    Sobre o Projeto Resgatados UnB
+                  </h4>
+                  <p className="text-sm sm:text-base leading-relaxed text-foreground/95 italic font-medium">
+                    "A Universidade de Brasília (UnB) tem um projeto chamado Resgatos UnB, que visa a adoção responsável dos gatos que vivem no campus. O projeto, gerido pela estudante de Farmácia Bruna Miranda, busca garantir as melhores condições de saúde e vida para os animais, além de encontrar lares para cerca de 50 gatos encontrados. O processo de resgate e adoção é complexo, envolvendo cuidados médicos, vacinação e acompanhamento pós-adoção para garantir a adaptação dos gatos aos novos lares."
                   </p>
                 </div>
+              </div>
+            </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {BRUNA_PETS.map((pet) => (
-                    <div
-                      key={pet.id}
-                      className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-3.5 space-y-3"
-                    >
-                      <div className="space-y-3">
-                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
-                          <img
-                            src={pet.photo}
-                            alt={pet.name}
-                            className="h-full w-full object-cover"
-                          />
-                          <div className="absolute top-2 left-2 flex gap-1">
-                            <span className="rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
-                              {pet.category}
-                            </span>
-                            <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">
-                              {pet.gender}
-                            </span>
-                          </div>
-                        </div>
+            {/* SEÇÃO PRINCIPAL: OS GATOS QUE ESTÃO PARA ADOÇÃO APARECEM AQUI */}
+            <div className="space-y-4 pt-1">
+              <div className="flex items-center justify-between border-b border-border/50 pb-2">
+                <div>
+                  <h4 className="text-lg font-bold text-foreground flex items-center gap-2">
+                    <PawPrint className="h-5 w-5 text-emerald-600" />
+                    Gatinhos Disponíveis para Adoção Responsável ({RESGATADOS_PETS.length})
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Animais cuidados no campus da UnB com protocolo veterinário completo aguardando uma família.
+                  </p>
+                </div>
+              </div>
 
-                        <div>
-                          <div className="flex items-baseline justify-between">
-                            <h5 className="font-extrabold text-base text-foreground">{pet.name}</h5>
-                            <span className="text-xs font-semibold text-muted-foreground">{pet.age}</span>
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                            {pet.summary}
-                          </p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-1">
-                          {pet.tags.slice(1, 3).map((t) => (
-                            <span
-                              key={t}
-                              className="rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold text-primary"
-                            >
-                              {t}
-                            </span>
-                          ))}
+              {/* Grid dos 4 Gatos */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {RESGATADOS_PETS.map((pet) => (
+                  <div
+                    key={pet.id}
+                    className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-3.5 space-y-3 shadow-xs hover:border-emerald-500/40 transition-colors"
+                  >
+                    <div className="space-y-3">
+                      <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
+                        <img
+                          src={pet.photo}
+                          alt={pet.name}
+                          className="h-full w-full object-cover"
+                        />
+                        <div className="absolute top-2 left-2 flex gap-1">
+                          <span className="rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
+                            {pet.category}
+                          </span>
+                          <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                            {pet.gender}
+                          </span>
                         </div>
                       </div>
 
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setShowProfileModal(false);
-                          navigate({ to: "/adocao" });
-                        }}
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold"
-                      >
-                        <Heart className="h-3.5 w-3.5 mr-1" /> Quero Adotar {pet.name}
-                      </Button>
+                      <div>
+                        <div className="flex items-baseline justify-between">
+                          <h5 className="font-extrabold text-base text-foreground">{pet.name}</h5>
+                          <span className="text-xs font-semibold text-muted-foreground">{pet.age}</span>
+                        </div>
+                        <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          {pet.summary}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1">
+                        {pet.tags.slice(1, 3).map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold text-primary"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-                </div>
+
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setShowProfileModal(false);
+                        navigate({ to: "/adocao" });
+                      }}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold"
+                    >
+                      <Heart className="h-3.5 w-3.5 mr-1" /> Quero Adotar {pet.name}
+                    </Button>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
+
+            {/* 4 Pilares de Excelência do Projeto */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+              <div className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm">
+                  <Users className="h-4 w-4" />
+                  <span>~50 Gatos no Campus</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Monitoramento diário e assistência à colônia felina que habita a UnB.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm">
+                  <Stethoscope className="h-4 w-4" />
+                  <span>Gestão em Farmácia</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Triagem clínica, desparasitação e medicamentos com rigor técnico de Bruna Miranda.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm">
+                  <Syringe className="h-4 w-4" />
+                  <span>Protocolo Sanitário Completo</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Vacinação antirrábica, testes FIV/FeLV e castração garantida para todos os felinos.
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-border/80 bg-card p-3.5 space-y-1">
+                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-xs sm:text-sm">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Acompanhamento Pós-Adoção</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Verificação de telas e acompanhamento próximo para a perfeita adaptação familiar.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Rodapé do Modal */}
@@ -997,16 +931,16 @@ function ComunidadePage() {
                 setShowProfileModal(false);
                 navigate({ to: "/adocao" });
               }}
-              className="text-xs"
+              className="text-xs font-semibold"
             >
-              Ir para Catálogo de Adoção
+              Ir para Catálogo Completo de Adoção
             </Button>
 
             <Button
               variant="default"
               size="sm"
               onClick={() => setShowProfileModal(false)}
-              className="text-xs"
+              className="text-xs font-semibold"
             >
               Fechar
             </Button>
@@ -1063,7 +997,7 @@ function ComunidadePage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl font-bold italic text-primary">
               <Camera className="h-5 w-5 text-primary" />
-              Compartilhe a novidade do seu pet
+              Compartilhe a novidade do seu pet adotado
             </DialogTitle>
           </DialogHeader>
 
@@ -1085,7 +1019,7 @@ function ComunidadePage() {
                   </option>
                 ))}
                 {adopted.length === 0 && (
-                  <option value="seed-violeta">Violeta (Resgatos UnB)</option>
+                  <option value="sample-1">Mel (Adotada recentemente)</option>
                 )}
               </select>
             </div>
