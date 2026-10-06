@@ -48,7 +48,7 @@ const FEATURED_PETS = [
     age: "6 meses (Filhote)",
     region: "Asa Norte (UnB)",
     photo: "/pets/violeta.jpg",
-    desc: "ONG Resgatados UnB: charmosa e dócil, vermifugada, vacinada (antirrábica), mãe FIV/FeLV negativa e castração garantida.",
+    desc: "Projeto Resgatos UnB: charmosa e dócil, vermifugada, vacinada (antirrábica), mãe FIV/FeLV negativa e castração garantida.",
   },
   {
     id: "seed-higor",
@@ -57,7 +57,7 @@ const FEATURED_PETS = [
     age: "6 meses (Filhote)",
     region: "Asa Norte (UnB)",
     photo: "/pets/higor.jpg",
-    desc: "ONG Resgatados UnB: carinhoso e tranquilo, vermifugado, vacinado (antirrábica), mãe FIV/FeLV negativa e castração garantida.",
+    desc: "Projeto Resgatos UnB: carinhoso e tranquilo, vermifugado, vacinado (antirrábica), mãe FIV/FeLV negativa e castração garantida.",
   },
   {
     id: "seed-rosa",
@@ -66,7 +66,7 @@ const FEATURED_PETS = [
     age: "6 meses (Filhote)",
     region: "Asa Norte (UnB)",
     photo: "/pets/rosa.jpg",
-    desc: "ONG Resgatados UnB: meiga e charmosa, vermifugada, vacinada (antirrábica), mãe FIV/FeLV negativa e castração garantida.",
+    desc: "Projeto Resgatos UnB: meiga e charmosa, vermifugada, vacinada (antirrábica), mãe FIV/FeLV negativa e castração garantida.",
   },
   {
     id: "seed-ana",
@@ -75,7 +75,7 @@ const FEATURED_PETS = [
     age: "1 a 2 anos (Adulta)",
     region: "Asa Norte (UnB)",
     photo: "/pets/ana.jpg",
-    desc: "ONG Resgatados UnB: mãezinha dócil e amorosa de Violeta, Higor e Rosa. Castrada, vacinada, vermifugada e FIV/FeLV negativa.",
+    desc: "Projeto Resgatos UnB: mãezinha dócil e amorosa de Violeta, Higor e Rosa. Castrada, vacinada, vermifugada e FIV/FeLV negativa.",
   },
 ];
 

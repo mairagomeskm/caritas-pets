@@ -31,3 +31,4 @@ dist-ssr
 *.sln
 *.sw?
 tunnel_url.txt
+cloudflared.exe

@@ -90,7 +90,7 @@ const DEFAULT_PETS: PetItem[] = [
       "Adora carinho",
       "Usa caixinha de areia",
     ],
-    organization_name: "Resgatados UnB",
+    organization_name: "Resgatos UnB",
     status: "disponivel",
   },
   {
@@ -106,7 +106,7 @@ const DEFAULT_PETS: PetItem[] = [
     description:
       "Gatinho de 6 meses lindo, dócil e curioso. Vermifugado, vacinado (antirrábica), mãe negativa para FIV/FeLV e castração garantida.",
     detailed_story:
-      "O Higor é um gatinho tigrado com peito branquinho, olhar doce e muito carinhoso de 6 meses. Ele e a Violeta são da ONG Resgatados UnB. Muito tranquilo e amoroso, ele adora aconchegar-se em mantinhas quentinhas e receber carinho atrás das orelhas. É filho de mamãe testada negativa para FIV e FeLV. Seu protocolo veterinário está rigorosamente em dia: vermifugado, vacinado contra a raiva (antirrábica) e a castração está 100% garantida pela ONG. Usa caixinha de areia com perfeição e busca um lar responsável em Brasília/DF (apartamento telado ou casa sem rotas de fuga).",
+      "O Higor é um gatinho tigrado com peito branquinho, olhar doce e muito carinhoso de 6 meses. Ele e a Violeta são do projeto Resgatos UnB. Muito tranquilo e amoroso, ele adora aconchegar-se em mantinhas quentinhas e receber carinho atrás das orelhas. É filho de mamãe testada negativa para FIV e FeLV. Seu protocolo veterinário está rigorosamente em dia: vermifugado, vacinado contra a raiva (antirrábica) e a castração está 100% garantida pelo projeto. Usa caixinha de areia com perfeição e busca um lar responsável em Brasília/DF (apartamento telado ou casa sem rotas de fuga).",
     health_status: [
       "Vacinado (Antirrábica)",
       "Vermifugado",
@@ -120,7 +120,7 @@ const DEFAULT_PETS: PetItem[] = [
       "Adora cobertores",
       "Usa caixinha de areia",
     ],
-    organization_name: "Resgatados UnB",
+    organization_name: "Resgatos UnB",
     status: "disponivel",
   },
   {
@@ -136,7 +136,7 @@ const DEFAULT_PETS: PetItem[] = [
     description:
       "Gatinha de 6 meses elegante, charmosa e meiga. Vermifugada, vacinada (antirrábica), mãe negativa para FIV/FeLV e castração garantida.",
     detailed_story:
-      "A Rosa é uma gatinha linda e graciosa de 6 meses, resgatada junto com seus irmãozinhos pela ONG Resgatados UnB. Muito carinhosa, expressiva e vaidosa, adora receber carinho e posar elegante com seu lacinho listrado. É filha de mamãe com teste negativo para FIV e FeLV. Seu protocolo veterinário está rigorosamente completo: já está vermifugada, vacinada contra raiva (antirrábica) e possui castração 100% garantida pela ONG. É super asseada, brincalhona e usa a caixinha de areia com perfeição. Busca uma família responsável em Brasília/DF (apartamento telado ou casa segura) para encher a vida de amor.",
+      "A Rosa é uma gatinha linda e graciosa de 6 meses, resgatada junto com seus irmãozinhos pelo projeto Resgatos UnB. Muito carinhosa, expressiva e vaidosa, adora receber carinho e posar elegante com seu lacinho listrado. É filha de mamãe com teste negativo para FIV e FeLV. Seu protocolo veterinário está rigorosamente completo: já está vermifugada, vacinada contra raiva (antirrábica) e possui castração 100% garantida pelo projeto. É super asseada, brincalhona e usa a caixinha de areia com perfeição. Busca uma família responsável em Brasília/DF (apartamento telado ou casa segura) para encher a vida de amor.",
     health_status: [
       "Vacinada (Antirrábica)",
       "Vermifugada",
@@ -150,7 +150,7 @@ const DEFAULT_PETS: PetItem[] = [
       "Sociável",
       "Usa caixinha de areia",
     ],
-    organization_name: "Resgatados UnB",
+    organization_name: "Resgatos UnB",
     status: "disponivel",
   },
   {
@@ -166,7 +166,7 @@ const DEFAULT_PETS: PetItem[] = [
     description:
       "Mãezinha dos filhotes (Violeta, Higor e Rosa), 1 a 2 anos, extremamente dócil e amorosa. Castrada, vacinada (antirrábica), vermifugada e negativa para FIV/FeLV.",
     detailed_story:
-      "A Ana é a heroica e doce mãezinha de Violeta, Higor e Rosa, resgatada com toda a sua ninhada pela ONG Resgatados UnB. Jovem (entre 1 e 2 anos), ela cuidou exemplarmente de todos os seus filhotes e agora merece um lar repleto de carinho e tranquilidade. Com seus olhos verdes encantadores e um charmoso laço de florzinhas amarelas, é super mansa, adora ficar deitada em mantas macias e receber cafuné. Seu protocolo veterinário está 100% completo: castrada, vacinada contra a raiva (antirrábica), vermifugada e testada negativa para FIV e FeLV. Muito limpinha e asseada com sua caixinha de areia. Espera por uma adoção amorosa e responsável em Brasília/DF (apartamento telado ou casa sem rotas de fuga).",
+      "A Ana é a heroica e doce mãezinha de Violeta, Higor e Rosa, resgatada com toda a sua ninhada pelo projeto Resgatos UnB. Jovem (entre 1 e 2 anos), ela cuidou exemplarmente de todos os seus filhotes e agora merece um lar repleto de carinho e tranquilidade. Com seus olhos verdes encantadores e um charmoso laço de florzinhas amarelas, é super mansa, adora ficar deitada em mantas macias e receber cafuné. Seu protocolo veterinário está 100% completo: castrada, vacinada contra a raiva (antirrábica), vermifugada e testada negativa para FIV e FeLV. Muito limpinha e asseada com sua caixinha de areia. Espera por uma adoção amorosa e responsável em Brasília/DF (apartamento telado ou casa sem rotas de fuga).",
     health_status: [
       "Castrada",
       "Vacinada (Antirrábica)",
@@ -180,7 +180,7 @@ const DEFAULT_PETS: PetItem[] = [
       "Adora mantinhas e colo",
       "Usa caixinha de areia",
     ],
-    organization_name: "Resgatados UnB",
+    organization_name: "Resgatos UnB",
     status: "disponivel",
   },
 ];
@@ -216,7 +216,8 @@ function AdocaoPage() {
       filter === "todos" ||
       (filter === "filhotes" ? p.is_puppy : p.species === filter);
 
-    const matchesRegion = region === "Todas" || p.region === region;
+    const matchesRegion =
+      region === "Todas" || p.region === region || p.region.includes(region);
 
     const matchesSearch =
       !searchTerm ||
