@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -20,18 +20,16 @@ import {
   MapPin,
   Syringe,
   Stethoscope,
-  Info,
-  ExternalLink,
   ArrowRight,
   HeartHandshake,
-  Award,
+  PawPrint,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { uploadMedia } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { FilterPill } from "@/components/FilterPill";
@@ -43,37 +41,32 @@ export const Route = createFileRoute("/comunidade")({
       {
         name: "description",
         content:
-          "Perfil do projeto Resgatos UnB gerido por Bruna Miranda, mural da comunidade, finais felizes de pets adotados e orientações de adoção responsável no DF.",
+          "Mural da comunidade Carita's Pets: projeto parceiro Resgatos UnB por Bruna Miranda, histórias de finais felizes e dicas de cuidados.",
       },
-      { property: "og:title", content: "Comunidade Carita's & Resgatos UnB (Bruna Miranda)" },
+      { property: "og:title", content: "Comunidade Carita's & Resgatos UnB" },
       {
         property: "og:description",
         content:
-          "Conheça o projeto Resgatos UnB com Bruna Miranda, acompanhe os gatos para adoção responsável e veja histórias de amor do DF.",
+          "Conheça o projeto Resgatos UnB, veja os gatinhos para adoção responsável e acompanhe depoimentos emocionantes.",
       },
     ],
   }),
   component: ComunidadePage,
 });
 
-const CATS = [
-  "Todos",
-  "Perfil: Bruna Miranda (Resgatos UnB)",
-  "Finais Felizes",
-  "Conheça nossas ONGs parceiras",
-  "Dicas de Cuidados",
-] as const;
+const CATS = ["Todos", "Projetos & ONGs", "Finais Felizes", "Dicas de Cuidados"] as const;
 type Cat = (typeof CATS)[number];
 
 const img = (id: string) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=80`;
 
 type Article = {
-  cat: Cat;
+  cat: "Conheça nossas ONGs parceiras" | "Dicas de Cuidados";
   title: string;
   summary: string;
   photo: string;
   readTime: string;
   content: string;
+  isResgatos?: boolean;
 };
 
 const ARTICLES: Article[] = [
@@ -84,6 +77,7 @@ const ARTICLES: Article[] = [
       "Gerido por Bruna Miranda, estudante de Farmácia, o projeto cuida da saúde e busca lares seguros para cerca de 50 gatos da Universidade de Brasília.",
     photo: "/resgatos-unb.png",
     readTime: "3 min de leitura",
+    isResgatos: true,
     content:
       "A Universidade de Brasília (UnB) tem um projeto chamado Resgatos UnB, que visa a adoção responsável dos gatos que vivem no campus. O projeto, gerido pela estudante de Farmácia Bruna Miranda, busca garantir as melhores condições de saúde e vida para os animais, além de encontrar lares para cerca de 50 gatos encontrados. O processo de resgate e adoção é complexo, envolvendo cuidados médicos, vacinação e acompanhamento pós-adoção para garantir a adaptação dos gatos aos novos lares. No campus Darcy Ribeiro, cada resgate segue rígidos protocolos sanitários, vermifugação, testes de FIV e FeLV, castração e acompanhamento afetuoso até que cada felino encontre sua família definitiva.",
   },
@@ -196,7 +190,6 @@ type BrunaPet = {
   summary: string;
   detailedStory: string;
   healthChecks: string[];
-  temperament: string[];
 };
 
 const BRUNA_PETS: BrunaPet[] = [
@@ -217,7 +210,6 @@ const BRUNA_PETS: BrunaPet[] = [
       "Mãe testada negativa para FIV e FeLV",
       "Castração 100% garantida pelo projeto Resgatos UnB",
     ],
-    temperament: ["Super dócil", "Brincalhona e curiosa", "Charmosa e expressiva", "Usa caixinha de areia"],
   },
   {
     id: "seed-higor",
@@ -227,7 +219,7 @@ const BRUNA_PETS: BrunaPet[] = [
     category: "Filhote",
     photo: "/pets/higor.jpg",
     tags: ["Filhote", "Vacinado (Antirrábica)", "Mãe FIV/FeLV -", "Castração Garantida"],
-    summary: "Gatinho tigrado com peito branquinho, olhar doce, tranquilo e muito carinhoso.",
+    summary: "Gatinho tigrado com peito branquinho, olhar doce, calmo e muito carinhoso. Castração garantida.",
     detailedStory:
       "O Higor é um gatinho tigrado com peito branquinho, olhar doce e muito carinhoso de 6 meses. Ele e a Violeta são do projeto Resgatos UnB. Muito tranquilo e amoroso, ele adora aconchegar-se em mantinhas quentinhas e receber carinho atrás das orelhas. É filho de mamãe testada negativa para FIV e FeLV. Seu protocolo veterinário está rigorosamente em dia: vermifugado, vacinado contra a raiva (antirrábica) e a castração está 100% garantida pelo projeto. Usa caixinha de areia com perfeição e busca um lar responsável em Brasília/DF (apartamento telado ou casa sem rotas de fuga).",
     healthChecks: [
@@ -236,7 +228,6 @@ const BRUNA_PETS: BrunaPet[] = [
       "Mãe testada negativa para FIV e FeLV",
       "Castração 100% garantida pelo projeto Resgatos UnB",
     ],
-    temperament: ["Super carinhoso", "Tranquilo e curioso", "Dócil e companheiro", "Usa caixinha de areia"],
   },
   {
     id: "seed-rosa",
@@ -255,7 +246,6 @@ const BRUNA_PETS: BrunaPet[] = [
       "Mãe testada negativa para FIV e FeLV",
       "Castração 100% garantida pelo projeto Resgatos UnB",
     ],
-    temperament: ["Meiga e carinhosa", "Elegante e dócil", "Brincalhona", "Usa caixinha de areia"],
   },
   {
     id: "seed-ana",
@@ -274,7 +264,6 @@ const BRUNA_PETS: BrunaPet[] = [
       "Vermifugada com protocolo completo",
       "Testada 100% negativa para FIV e FeLV",
     ],
-    temperament: ["Extremamente dócil", "Calma e amorosa", "Mãezona carinhosa", "Usa caixinha de areia"],
   },
 ];
 
@@ -284,12 +273,14 @@ function ComunidadePage() {
   const { user, setAuthOpen } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+
   const [cat, setCat] = useState<Cat>("Todos");
   const [seen, setSeen] = useState<string[]>([]);
   const [viewer, setViewer] = useState<{ posts: Post[]; i: number } | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [activeProfileTab, setActiveProfileTab] = useState<"sobre" | "gatos">("sobre");
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [selectedBrunaPet, setSelectedBrunaPet] = useState<BrunaPet | null>(null);
   const [likes, setLikes] = useState<Record<string, number>>({});
   const [userLikes, setUserLikes] = useState<Record<string, boolean>>({});
 
@@ -339,14 +330,14 @@ function ComunidadePage() {
     queryFn: async () => (await supabase.from("pets").select("id, name").eq("status", "adotado")).data ?? [],
   });
 
-  // Agrupamento dos posts para o carrossel de stories no topo
+  // Agrupamento dos posts para o carrossel de stories
   const groups = useMemo(() => {
     const m = new Map<string, Post[]>();
     posts.forEach((p) => m.set(p.pet_id, [...(m.get(p.pet_id) ?? []), p]));
     return [...m.values()];
   }, [posts]);
 
-  // Feed equilibrado: intercala atualizações com artigos educativos
+  // Feed equilibrado e filtrado
   const feed = useMemo(() => {
     const ps: FeedItem[] = [...posts].map((post) => ({ kind: "post", post }));
     const as: FeedItem[] = ARTICLES.map((a) => ({ kind: "article", a }));
@@ -359,18 +350,18 @@ function ComunidadePage() {
     }
 
     if (cat === "Todos") return out;
-    if (cat === "Perfil: Bruna Miranda (Resgatos UnB)") {
+    if (cat === "Finais Felizes") return out.filter((f) => f.kind === "post");
+    if (cat === "Projetos & ONGs") {
       return out.filter(
         (f) =>
-          (f.kind === "post" && (f.post.id.startsWith("sample-resgatos") || f.post.caption?.includes("UnB"))) ||
-          (f.kind === "article" && f.a.title.includes("Resgatos UnB")),
+          (f.kind === "article" && f.a.cat === "Conheça nossas ONGs parceiras") ||
+          (f.kind === "post" && (f.post.id.includes("resgatos") || f.post.caption?.includes("UnB"))),
       );
     }
-    if (cat === "Finais Felizes") return out.filter((f) => f.kind === "post");
-    return out.filter((f) => f.kind === "article" && f.a.cat === cat);
+    return out.filter((f) => f.kind === "article" && f.a.cat === "Dicas de Cuidados");
   }, [posts, cat]);
 
-  // Visualizador automático de stories (5 segundos por foto)
+  // Visualizador automático de stories
   const currentStory = viewer ? viewer.posts[viewer.i] : null;
   useEffect(() => {
     if (!currentStory) return;
@@ -423,7 +414,7 @@ function ComunidadePage() {
         media_type: form.file.type.startsWith("video") ? "video" : "image",
       });
       if (error) throw error;
-      toast.success("História publicada com sucesso! Os protetores foram notificados.");
+      toast.success("História publicada com sucesso!");
       setForm({ pet: "", caption: "", file: null, previewUrl: null });
       setShowShareModal(false);
       qc.invalidateQueries({ queryKey: ["diary"] });
@@ -445,85 +436,68 @@ function ComunidadePage() {
   const handleShareBrunaProfile = async () => {
     const title = "Projeto Resgatos UnB — Bruna Miranda";
     const text =
-      "Conheça o projeto Resgatos UnB no campus da Universidade de Brasília, liderado pela estudante de Farmácia Bruna Miranda para cuidar e encontrar lares responsáveis para cerca de 50 gatos!";
+      "Conheça o projeto Resgatos UnB liderado por Bruna Miranda na Universidade de Brasília: acolhimento, cuidados de saúde e adoção responsável de gatos!";
     if (navigator.share) {
       await navigator.share({ title, text, url: window.location.href }).catch(() => {});
     } else {
       await navigator.clipboard.writeText(`${title}\n${text}\n${window.location.href}`);
-      toast.success("Link do perfil copiado com sucesso!");
+      toast.success("Link do perfil copiado!");
     }
   };
 
-  // Se o filtro atual permite exibir o perfil da Bruna
-  const showBrunaProfile =
-    cat === "Todos" ||
-    cat === "Perfil: Bruna Miranda (Resgatos UnB)" ||
-    cat === "Conheça nossas ONGs parceiras";
-
   return (
-    <div className="space-y-8 pb-10">
-      {/* Cabeçalho Harmônico */}
-      <header className="rounded-2xl border border-primary/20 bg-card/95 p-6 shadow-sm backdrop-blur-sm sm:p-8">
+    <div className="space-y-6 pb-12">
+      {/* Cabeçalho Limpo e Objetivo */}
+      <header className="rounded-2xl border border-primary/20 bg-card p-6 shadow-xs sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/80 text-primary">
-                <Users className="h-4 w-4" />
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary/80 text-primary">
+                <Users className="h-3.5 w-3.5" />
               </span>
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Mural Carita's & Projetos Parceiros
+                Mural Público & Parceiros
               </span>
             </div>
-            <h1 className="text-3xl font-extrabold italic tracking-tight text-primary sm:text-4xl">
-              Comunidade & Finais Felizes
+            <h1 className="text-2xl font-extrabold italic tracking-tight text-primary sm:text-3xl">
+              Comunidade Carita's
             </h1>
-            <p className="text-sm text-muted-foreground sm:text-base">
-              Acompanhe o projeto Resgatos UnB com Bruna Miranda, histórias de pets adotados e orientações de posse responsável.
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Acompanhe novidades de pets adotados, iniciativas parceiras e orientações de posse responsável.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setCat("Perfil: Bruna Miranda (Resgatos UnB)")}
-              className="flex items-center gap-2 rounded-full border-emerald-600/30 px-4 py-2 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10"
-            >
-              <GraduationCap className="h-4 w-4 text-emerald-600" />
-              <span>Ver Resgatos UnB</span>
-            </Button>
-
-            <Button
-              onClick={() => (user ? setShowShareModal(true) : setAuthOpen(true))}
-              className="flex items-center gap-2 rounded-full px-5 py-2.5 shadow-md transition-all hover:scale-105"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Compartilhar Novidade</span>
-            </Button>
-          </div>
+          <Button
+            onClick={() => (user ? setShowShareModal(true) : setAuthOpen(true))}
+            className="flex items-center gap-2 rounded-full px-5 py-2.5 shadow-xs transition-all hover:scale-105 shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Compartilhar Novidade</span>
+          </Button>
         </div>
       </header>
 
-      {/* Carrossel de Stories Elegante */}
+      {/* Carrossel de Stories Limpo */}
       {groups.length > 0 && (
         <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
-            <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Sparkles className="h-3.5 w-3.5 text-primary" />
-              Diário dos Adotados & Atualizações (Stories)
+              Stories & Atualizações Recentes
             </h2>
-            <span className="text-xs text-muted-foreground">Toque para assistir</span>
+            <span className="text-xs text-muted-foreground">Toque para ver</span>
           </div>
 
-          <div className="no-scrollbar -mx-4 flex gap-4 overflow-x-auto px-4 py-2">
-            {/* Botão de adicionar story se logado */}
+          <div className="no-scrollbar -mx-4 flex gap-3.5 overflow-x-auto px-4 py-1.5">
+            {/* Adicionar Story */}
             <button
               onClick={() => (user ? setShowShareModal(true) : setAuthOpen(true))}
-              className="group flex shrink-0 flex-col items-center gap-1.5 focus:outline-none"
+              className="group flex shrink-0 flex-col items-center gap-1 focus:outline-none"
             >
-              <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-dashed border-primary/50 bg-secondary/30 transition-all group-hover:border-primary group-hover:bg-secondary/60">
-                <Plus className="h-7 w-7 text-primary transition-transform group-hover:scale-110" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-dashed border-primary/40 bg-secondary/20 transition-all group-hover:border-primary group-hover:bg-secondary/50">
+                <Plus className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-xs font-medium text-foreground">Novo post</span>
+              <span className="text-[11px] font-medium text-foreground">Novo post</span>
             </button>
 
             {groups.map((g) => {
@@ -534,22 +508,22 @@ function ComunidadePage() {
                 <button
                   key={first.pet_id}
                   onClick={() => setViewer({ posts: g, i: 0 })}
-                  className="group flex shrink-0 flex-col items-center gap-1.5 focus:outline-none"
+                  className="group flex shrink-0 flex-col items-center gap-1 focus:outline-none"
                 >
                   <div
-                    className={`rounded-full p-1 transition-transform group-hover:scale-105 ${
+                    className={`rounded-full p-0.5 transition-transform group-hover:scale-105 ${
                       unseen
-                        ? "bg-gradient-to-tr from-emerald-600 via-primary to-accent shadow-md"
+                        ? "bg-gradient-to-tr from-emerald-600 via-primary to-accent shadow-xs"
                         : "bg-border/80"
                     }`}
                   >
                     <img
                       src={pet?.photo_url ?? first.media_url}
                       alt={pet?.name ?? "Pet"}
-                      className="h-18 w-18 rounded-full border-2 border-card object-cover sm:h-20 sm:w-20"
+                      className="h-16 w-16 rounded-full border-2 border-card object-cover"
                     />
                   </div>
-                  <span className="max-w-[85px] truncate text-center text-xs font-semibold text-foreground">
+                  <span className="max-w-[75px] truncate text-center text-[11px] font-semibold text-foreground">
                     {pet?.name ?? "Amigo"}
                   </span>
                 </button>
@@ -559,7 +533,7 @@ function ComunidadePage() {
         </section>
       )}
 
-      {/* Barra de Filtros */}
+      {/* Pílulas de Filtro Rápidas */}
       <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 py-1">
         {CATS.map((c) => (
           <FilterPill key={c} active={cat === c} onClick={() => setCat(c)}>
@@ -569,306 +543,112 @@ function ComunidadePage() {
       </div>
 
       {/* ============================================================ */}
-      {/* PERFIL OFICIAL: BRUNA MIRANDA — RESGATOS UNB                */}
+      {/* CARD DO PERFIL RESGATOS UNB (CLIQUE PARA VER AS INFORMAÇÕES) */}
       {/* ============================================================ */}
-      {showBrunaProfile && (
+      {(cat === "Todos" || cat === "Projetos & ONGs") && (
         <section
-          id="perfil-resgatos-unb"
-          className="relative overflow-hidden rounded-3xl border border-emerald-500/25 bg-card shadow-lg transition-all duration-300"
+          onClick={() => {
+            setActiveProfileTab("sobre");
+            setShowProfileModal(true);
+          }}
+          className="group relative cursor-pointer overflow-hidden rounded-2xl border border-emerald-500/30 bg-card p-5 shadow-xs transition-all duration-300 hover:border-emerald-500 hover:shadow-md hover:-translate-y-0.5 sm:p-6"
         >
-          {/* Banner de Capa no Padrão UnB (Azul Institucional & Verde Natureza) */}
-          <div className="relative h-44 sm:h-52 w-full bg-gradient-to-r from-[#002f54] via-[#004f7a] to-[#0d6938] p-5 sm:p-6 text-white overflow-hidden">
-            <div className="absolute -right-10 -bottom-10 h-64 w-64 rounded-full bg-emerald-400/10 blur-3xl" />
-            <div className="absolute left-1/3 -top-10 h-48 w-48 rounded-full bg-sky/10 blur-2xl" />
-
-            <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-bold tracking-wide backdrop-blur-md">
-                  <GraduationCap className="h-3.5 w-3.5 text-emerald-300" />
-                  Projeto Oficial UnB
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur-md">
-                  <MapPin className="h-3.5 w-3.5 text-sky-200" />
-                  Campus Darcy Ribeiro • Asa Norte / DF
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              {/* Logo Redonda com Selo */}
+              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-2xl border-2 border-emerald-500/20 bg-white p-2 shadow-xs shrink-0">
+                <img
+                  src="/resgatos-unb.png"
+                  alt="Resgatos UnB"
+                  className="h-full w-full object-contain rounded-xl"
+                />
+                <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xs ring-2 ring-card">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={handleShareBrunaProfile}
-                  className="rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/30 border-0 flex items-center gap-1.5 text-xs font-semibold"
-                >
-                  <Share2 className="h-3.5 w-3.5" />
-                  <span>Compartilhar Perfil</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Conteúdo do Perfil */}
-          <div className="relative px-5 pb-8 sm:px-8">
-            {/* Foto / Logo e Identificação */}
-            <div className="relative -mt-16 sm:-mt-20 flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-border/50">
-              <div className="flex flex-col sm:flex-row sm:items-end gap-4">
-                <div className="relative h-28 w-28 sm:h-32 sm:w-32 rounded-3xl border-4 border-card bg-white p-2 shadow-xl ring-2 ring-emerald-500/20 shrink-0">
-                  <img
-                    src="/resgatos-unb.png"
-                    alt="Logo Resgatos UnB"
-                    className="h-full w-full object-contain rounded-2xl"
-                  />
-                  <span
-                    className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-white shadow-md ring-2 ring-card"
-                    title="Projeto Verificado"
-                  >
-                    <CheckCircle2 className="h-4 w-4" />
+              {/* Informações Resumidas */}
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
+                    Projeto Parceiro Oficial
+                  </span>
+                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-3 w-3 text-emerald-600" /> UnB Darcy Ribeiro
                   </span>
                 </div>
 
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                      Bruna Miranda
-                    </h2>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      Gestora Parceira
-                    </span>
-                  </div>
-                  <p className="text-base sm:text-lg font-semibold text-emerald-600 dark:text-emerald-400">
-                    Gestora do Projeto Resgatos UnB
-                  </p>
-                  <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-2">
-                    <span>Estudante de Farmácia — Universidade de Brasília (UnB)</span>
-                    <span>•</span>
-                    <span>Brasília / DF</span>
-                  </p>
-                </div>
-              </div>
+                <h2 className="text-lg sm:text-xl font-extrabold text-foreground group-hover:text-emerald-600 transition-colors">
+                  Projeto Resgatos UnB — Bruna Miranda
+                </h2>
 
-              <div className="flex flex-wrap gap-2 pt-2 sm:pt-0">
-                <Button
-                  onClick={() => navigate({ to: "/adocao" })}
-                  className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-2 shadow-sm font-semibold text-xs sm:text-sm"
-                >
-                  <Heart className="h-4 w-4" />
-                  <span>Ver Todos na Aba Adoção</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate({ to: "/vaquinhas" })}
-                  className="rounded-full border-border/80 flex items-center gap-2 text-xs sm:text-sm"
-                >
-                  <HeartHandshake className="h-4 w-4 text-emerald-600" />
-                  <span>Apoiar com Doações</span>
-                </Button>
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+                  Adoção responsável e cuidados de saúde felina no campus da Universidade de Brasília.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 px-2 py-0.5 font-semibold text-primary">
+                    <PawPrint className="h-3 w-3" /> 4 gatos para adoção
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300">
+                    <GraduationCap className="h-3 w-3" /> Farmácia UnB
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Descrição Oficial Enviada pelo Usuário */}
-            <div className="pt-6 space-y-6">
-              <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-card to-background p-5 sm:p-6 shadow-sm">
-                <div className="flex items-start gap-3.5">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-600/15 text-emerald-700 dark:text-emerald-300">
-                    <BookOpen className="h-5 w-5" />
-                  </span>
-                  <div className="space-y-2">
-                    <h3 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-                      Apresentação do Projeto Resgatos UnB
-                    </h3>
-                    <p className="text-sm sm:text-base leading-relaxed text-foreground/95 italic font-medium">
-                      "A Universidade de Brasília (UnB) tem um projeto chamado Resgatos UnB, que visa a adoção responsável dos gatos que vivem no campus. O projeto, gerido pela estudante de Farmácia Bruna Miranda, busca garantir as melhores condições de saúde e vida para os animais, além de encontrar lares para cerca de 50 gatos encontrados. O processo de resgate e adoção é complexo, envolvendo cuidados médicos, vacinação e acompanhamento pós-adoção para garantir a adaptação dos gatos aos novos lares."
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 4 Pilares de Excelência do Projeto */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-2xl border border-border/70 bg-card p-4 space-y-2 shadow-xs hover:border-emerald-500/40 transition-colors">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                    <Users className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-bold text-sm text-foreground">~50 Gatos no Campus</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Monitoramento contínuo da colônia felina que habita a UnB, com triagem e assistência diária.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-border/70 bg-card p-4 space-y-2 shadow-xs hover:border-emerald-500/40 transition-colors">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                    <Stethoscope className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-bold text-sm text-foreground">Gestão Farmacêutica</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Supervisão de medicação, controle parasitário e triagem clínica com respaldo técnico da estudante Bruna Miranda.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-border/70 bg-card p-4 space-y-2 shadow-xs hover:border-emerald-500/40 transition-colors">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                    <Syringe className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-bold text-sm text-foreground">Protocolo Sanitário</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Vacinação antirrábica, vermifugação rigorosa, testagem FIV/FeLV e castração garantida para todos.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-border/70 bg-card p-4 space-y-2 shadow-xs hover:border-emerald-500/40 transition-colors">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
-                    <ShieldCheck className="h-5 w-5" />
-                  </div>
-                  <h4 className="font-bold text-sm text-foreground">Acompanhamento Pós-Adoção</h4>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Garantia de segurança (telas e rotas de fuga) e suporte contínuo para a perfeita adaptação familiar.
-                  </p>
-                </div>
-              </div>
-
-              {/* Showcase dos Gatos da Família Resgatos UnB Disponíveis para Adoção */}
-              <div className="space-y-4 pt-3">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-border/40 pb-3">
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-emerald-600" />
-                      Gatos sob Tutela da Bruna Disponíveis para Adoção
-                    </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Conheça os felinos resgatados pela equipe da UnB aguardando lares responsáveis em Brasília.
-                    </p>
-                  </div>
-                  <Link
-                    to="/adocao"
-                    className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 shrink-0"
-                  >
-                    Abrir catálogo completo <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                  {BRUNA_PETS.map((pet) => (
-                    <article
-                      key={pet.id}
-                      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-emerald-500/40"
-                    >
-                      <div>
-                        {/* Foto com tags */}
-                        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-                          <img
-                            src={pet.photo}
-                            alt={pet.name}
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                          <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5">
-                            <span className="rounded-full bg-black/60 px-2.5 py-0.5 text-[11px] font-bold text-white backdrop-blur-md">
-                              {pet.category}
-                            </span>
-                            <span className="rounded-full bg-emerald-600/90 px-2.5 py-0.5 text-[11px] font-bold text-white backdrop-blur-md">
-                              {pet.gender}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Conteúdo do Card */}
-                        <div className="p-4 space-y-2.5">
-                          <div className="flex items-baseline justify-between">
-                            <h4 className="text-lg font-bold text-foreground group-hover:text-emerald-600 transition-colors">
-                              {pet.name}
-                            </h4>
-                            <span className="text-xs font-semibold text-muted-foreground">
-                              {pet.age}
-                            </span>
-                          </div>
-
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                            {pet.summary}
-                          </p>
-
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {pet.tags.slice(1, 3).map((tag) => (
-                              <span
-                                key={tag}
-                                className="rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold text-primary"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Botões de Ação */}
-                      <div className="p-4 pt-0 space-y-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedBrunaPet(pet)}
-                          className="w-full rounded-xl text-xs font-semibold hover:border-emerald-500/50"
-                        >
-                          Ver História & Cuidados
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => navigate({ to: "/adocao" })}
-                          className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs"
-                        >
-                          <Heart className="h-3.5 w-3.5 mr-1" /> Quero Adotar
-                        </Button>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
+            {/* Botão de Ação / Clique */}
+            <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+              <Button
+                variant="outline"
+                className="rounded-full border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 group-hover:border-emerald-600 flex items-center gap-1.5 font-semibold text-xs sm:text-sm"
+              >
+                <span>Ver Informações & Gatos</span>
+                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Button>
             </div>
           </div>
         </section>
       )}
 
-      {/* Grid Harmônico e Alinhado do Feed */}
+      {/* Grid Principal do Mural (Posts e Artigos) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-primary" />
-            Mural da Comunidade: Publicações & Artigos
+          <h2 className="text-lg font-bold tracking-tight text-foreground flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            Publicações da Comunidade ({feed.length})
           </h2>
-          <span className="text-xs text-muted-foreground">
-            {feed.length} publicação(ões)
-          </span>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {feed.length === 0 && (
             <div className="col-span-full rounded-2xl border border-dashed border-primary/30 bg-card p-12 text-center">
-              <Users className="mx-auto h-12 w-12 text-primary/40" />
-              <p className="mt-3 text-lg font-semibold text-foreground">Nenhuma publicação nesta categoria.</p>
-              <p className="mt-1 text-sm text-muted-foreground">Seja o primeiro a compartilhar uma novidade!</p>
+              <Users className="mx-auto h-10 w-10 text-primary/40" />
+              <p className="mt-3 text-base font-semibold text-foreground">Nenhuma publicação nesta categoria.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Explore outras opções no topo.</p>
             </div>
           )}
 
           {feed.map((f) =>
             f.kind === "post" ? (
-              /* Card de Final Feliz / Atualização */
+              /* Card de Post do Mural */
               <article
                 key={f.post.id}
-                className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
                 <div>
-                  {/* Cabeçalho do Card */}
-                  <div className="flex items-center justify-between border-b border-border/40 p-4">
-                    <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between border-b border-border/40 p-3.5">
+                    <div className="flex items-center gap-2.5">
                       <img
                         src={f.post.pets?.photo_url ?? f.post.media_url}
                         alt={f.post.pets?.name ?? "Pet"}
-                        className="h-10 w-10 rounded-full border border-primary/20 object-cover"
+                        className="h-9 w-9 rounded-full border border-primary/20 object-cover"
                       />
                       <div>
-                        <h3 className="font-bold text-foreground">
+                        <h3 className="font-bold text-sm text-foreground">
                           {f.post.pets?.name ?? "Pet Adotado"}
                         </h3>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-[11px] text-muted-foreground">
                           {new Date(f.post.created_at).toLocaleDateString("pt-BR", {
                             day: "2-digit",
                             month: "short",
@@ -876,12 +656,11 @@ function ComunidadePage() {
                         </p>
                       </div>
                     </div>
-                    <span className="rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                    <span className="rounded-full bg-secondary/80 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
                       {f.post.caption?.includes("UnB") ? "Resgatos UnB" : "Final Feliz"}
                     </span>
                   </div>
 
-                  {/* Foto / Mídia com Aspect Ratio Perfeito */}
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                     <img
                       src={f.post.media_url}
@@ -891,16 +670,14 @@ function ComunidadePage() {
                     />
                   </div>
 
-                  {/* Legenda / Depoimento */}
-                  <div className="p-4">
-                    <p className="text-sm italic leading-relaxed text-foreground/90">
+                  <div className="p-3.5">
+                    <p className="text-xs sm:text-sm italic leading-relaxed text-foreground/90">
                       "{f.post.caption || "Vivendo uma nova vida com muito amor e carinho!"}"
                     </p>
                   </div>
                 </div>
 
-                {/* Rodapé com Interações */}
-                <div className="flex items-center justify-between border-t border-border/40 px-4 py-3 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between border-t border-border/40 px-3.5 py-2.5 text-xs text-muted-foreground">
                   <button
                     onClick={() => toggleLike(f.post.id)}
                     className={`flex items-center gap-1.5 font-medium transition-colors ${
@@ -928,10 +705,10 @@ function ComunidadePage() {
                 </div>
               </article>
             ) : (
-              /* Card de Artigo Educativo / ONG Parceira */
+              /* Card de Artigo Educativo ou ONG */
               <article
                 key={f.a.title}
-                className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
               >
                 <div>
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
@@ -940,42 +717,49 @@ function ComunidadePage() {
                       alt={f.a.title}
                       loading="lazy"
                       className={`h-full w-full transition-transform duration-500 hover:scale-105 ${
-                        f.a.photo.includes("resgatos") ? "object-contain bg-white p-4" : "object-cover"
+                        f.a.isResgatos ? "object-contain bg-white p-5" : "object-cover"
                       }`}
                     />
                     <div className="absolute left-3 top-3">
                       <span
-                        className={`inline-block rounded-full px-3 py-1 text-xs font-bold shadow-sm ${
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold shadow-xs ${
                           f.a.cat === "Dicas de Cuidados"
                             ? "bg-accent text-accent-foreground"
-                            : "bg-sky text-sky-900"
+                            : "bg-emerald-600 text-white"
                         }`}
                       >
-                        {f.a.cat}
+                        {f.a.isResgatos ? "Resgatos UnB" : f.a.cat}
                       </span>
                     </div>
                   </div>
 
-                  <div className="space-y-2 p-5">
-                    <h3 className="text-xl font-bold leading-snug text-foreground">
+                  <div className="space-y-1.5 p-4">
+                    <h3 className="text-base sm:text-lg font-bold leading-snug text-foreground">
                       {f.a.title}
                     </h3>
-                    <p className="line-clamp-3 text-sm text-muted-foreground leading-relaxed">
+                    <p className="line-clamp-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                       {f.a.summary}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between border-t border-border/40 px-5 py-3.5 text-xs">
+                <div className="flex items-center justify-between border-t border-border/40 px-4 py-3 text-xs">
                   <span className="flex items-center gap-1 text-muted-foreground">
                     <Clock className="h-3.5 w-3.5" /> {f.a.readTime}
                   </span>
 
                   <button
-                    onClick={() => setSelectedArticle(f.a)}
+                    onClick={() => {
+                      if (f.a.isResgatos) {
+                        setActiveProfileTab("sobre");
+                        setShowProfileModal(true);
+                      } else {
+                        setSelectedArticle(f.a);
+                      }
+                    }}
                     className="flex items-center gap-1 font-bold text-primary transition-colors hover:underline"
                   >
-                    <span>Ler artigo</span>
+                    <span>{f.a.isResgatos ? "Ver Perfil & Gatos" : "Ler artigo"}</span>
                     <ChevronRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
@@ -985,88 +769,287 @@ function ComunidadePage() {
         </div>
       </div>
 
-      {/* Modal de Detalhes do Gato do Projeto Resgatos UnB */}
-      <Dialog open={!!selectedBrunaPet} onOpenChange={(open) => !open && setSelectedBrunaPet(null)}>
-        <DialogContent className="max-w-xl rounded-3xl p-6">
-          {selectedBrunaPet && (
-            <div className="space-y-5">
-              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-muted">
+      {/* ============================================================ */}
+      {/* MODAL COMPLETO: PERFIL & INFORMAÇÕES RESGATOS UNB            */}
+      {/* ============================================================ */}
+      <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl p-0 border border-emerald-500/30">
+          {/* Topo / Capa do Perfil */}
+          <div className="relative bg-gradient-to-r from-[#002f54] via-[#004f7a] to-[#0d6938] p-6 text-white overflow-hidden">
+            <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="h-20 w-20 rounded-2xl bg-white p-2 shadow-lg ring-2 ring-emerald-400/40 shrink-0">
+                  <img
+                    src="/resgatos-unb.png"
+                    alt="Logo Resgatos UnB"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold backdrop-blur-md">
+                      🎓 Projeto UnB
+                    </span>
+                    <span className="text-xs text-emerald-200">Campus Darcy Ribeiro</span>
+                  </div>
+                  <h3 className="text-2xl font-extrabold tracking-tight">Bruna Miranda</h3>
+                  <p className="text-xs sm:text-sm text-emerald-100 font-medium">
+                    Gestora do Projeto Resgatos UnB • Estudante de Farmácia (UnB)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-start sm:self-center">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={handleShareBrunaProfile}
+                  className="rounded-full bg-white/20 text-white backdrop-blur-md hover:bg-white/30 border-0 text-xs"
+                >
+                  <Share2 className="h-3.5 w-3.5 mr-1" /> Compartilhar
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Abas Internas do Modal: Sobre o Projeto e Gatinhos */}
+          <div className="border-b border-border/50 bg-muted/20 px-6 pt-3 flex gap-4">
+            <button
+              onClick={() => setActiveProfileTab("sobre")}
+              className={`pb-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
+                activeProfileTab === "sobre"
+                  ? "border-emerald-600 text-emerald-600 dark:text-emerald-400"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <BookOpen className="h-4 w-4" />
+              <span>Sobre o Projeto</span>
+            </button>
+
+            <button
+              onClick={() => setActiveProfileTab("gatos")}
+              className={`pb-3 text-sm font-bold border-b-2 transition-colors flex items-center gap-1.5 ${
+                activeProfileTab === "gatos"
+                  ? "border-emerald-600 text-emerald-600 dark:text-emerald-400"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <PawPrint className="h-4 w-4" />
+              <span>Gatinhos para Adoção ({BRUNA_PETS.length})</span>
+            </button>
+          </div>
+
+          {/* Corpo do Modal */}
+          <div className="p-6 space-y-6">
+            {activeProfileTab === "sobre" ? (
+              <div className="space-y-6">
+                {/* Descrição enviada pelo usuário */}
+                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-emerald-600 dark:text-emerald-400">
+                      <GraduationCap className="h-5 w-5" />
+                    </span>
+                    <div className="space-y-1.5">
+                      <h4 className="text-sm font-bold text-foreground">
+                        Descrição Oficial do Projeto
+                      </h4>
+                      <p className="text-sm sm:text-base leading-relaxed text-foreground/95 italic">
+                        "A Universidade de Brasília (UnB) tem um projeto chamado Resgatos UnB, que visa a adoção responsável dos gatos que vivem no campus. O projeto, gerido pela estudante de Farmácia Bruna Miranda, busca garantir as melhores condições de saúde e vida para os animais, além de encontrar lares para cerca de 50 gatos encontrados. O processo de resgate e adoção é complexo, envolvendo cuidados médicos, vacinação e acompanhamento pós-adoção para garantir a adaptação dos gatos aos novos lares."
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4 Pontos Chave */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                      <Users className="h-4 w-4" />
+                      <span>~50 Gatos no Campus</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Monitoramento diário e assistência à população felina do campus Darcy Ribeiro.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                      <Stethoscope className="h-4 w-4" />
+                      <span>Gestão em Farmácia</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Triagem de saúde, desparasitação e medicamentos geridos pela estudante Bruna Miranda.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                      <Syringe className="h-4 w-4" />
+                      <span>Protocolo Sanitário Completo</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Vacinação antirrábica, testes FIV/FeLV e castração garantida para todos os resgatados.
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-border/80 bg-card p-4 space-y-1">
+                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Acompanhamento Pós-Adoção</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Verificação de segurança (telas) e acompanhamento próximo para a perfeita adaptação familiar.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Chamada para ver os gatinhos */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl bg-secondary/40 p-4 border border-border/60">
+                  <div className="text-xs sm:text-sm text-foreground">
+                    <span className="font-bold">Quer conhecer os gatinhos prontos para adoção?</span>
+                    <p className="text-xs text-muted-foreground">Violeta, Higor, Rosa e a mãezinha Ana estão aguardando um lar!</p>
+                  </div>
+                  <Button
+                    onClick={() => setActiveProfileTab("gatos")}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full text-xs font-bold"
+                  >
+                    Ver Gatos para Adoção
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              /* Aba: Gatinhos para Adoção */
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Gatinhos resgatados pela equipe da UnB com protocolos de vacinação, exames e castração.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {BRUNA_PETS.map((pet) => (
+                    <div
+                      key={pet.id}
+                      className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-3.5 space-y-3"
+                    >
+                      <div className="space-y-3">
+                        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
+                          <img
+                            src={pet.photo}
+                            alt={pet.name}
+                            className="h-full w-full object-cover"
+                          />
+                          <div className="absolute top-2 left-2 flex gap-1">
+                            <span className="rounded-full bg-black/60 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-md">
+                              {pet.category}
+                            </span>
+                            <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">
+                              {pet.gender}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <div className="flex items-baseline justify-between">
+                            <h5 className="font-extrabold text-base text-foreground">{pet.name}</h5>
+                            <span className="text-xs font-semibold text-muted-foreground">{pet.age}</span>
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                            {pet.summary}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1">
+                          {pet.tags.slice(1, 3).map((t) => (
+                            <span
+                              key={t}
+                              className="rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold text-primary"
+                            >
+                              {t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setShowProfileModal(false);
+                          navigate({ to: "/adocao" });
+                        }}
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold"
+                      >
+                        <Heart className="h-3.5 w-3.5 mr-1" /> Quero Adotar {pet.name}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Rodapé do Modal */}
+          <div className="border-t border-border/40 p-4 bg-muted/20 flex flex-wrap items-center justify-between gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowProfileModal(false);
+                navigate({ to: "/adocao" });
+              }}
+              className="text-xs"
+            >
+              Ir para Catálogo de Adoção
+            </Button>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setShowProfileModal(false)}
+              className="text-xs"
+            >
+              Fechar
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para Artigos Educativos */}
+      <Dialog
+        open={!!selectedArticle}
+        onOpenChange={(open) => !open && setSelectedArticle(null)}
+      >
+        <DialogContent className="max-w-xl rounded-2xl p-6">
+          {selectedArticle && (
+            <div className="space-y-4">
+              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-muted">
                 <img
-                  src={selectedBrunaPet.photo}
-                  alt={selectedBrunaPet.name}
+                  src={selectedArticle.photo}
+                  alt={selectedArticle.title}
                   className="h-full w-full object-cover"
                 />
-                <div className="absolute top-3 left-3 flex gap-2">
-                  <span className="rounded-full bg-emerald-600 text-white px-3 py-1 text-xs font-bold shadow">
-                    Projeto Resgatos UnB
-                  </span>
-                  <span className="rounded-full bg-black/60 text-white px-3 py-1 text-xs font-bold backdrop-blur">
-                    {selectedBrunaPet.gender} • {selectedBrunaPet.age}
-                  </span>
-                </div>
+                <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground shadow-xs">
+                  {selectedArticle.cat}
+                </span>
               </div>
 
               <div>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-extrabold text-foreground">
-                    {selectedBrunaPet.name}
-                  </h3>
-                  <span className="text-xs font-semibold text-emerald-600 bg-emerald-500/15 px-3 py-1 rounded-full">
-                    Gestão: Bruna Miranda
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-foreground/90 leading-relaxed">
-                  {selectedBrunaPet.detailedStory}
-                </p>
-              </div>
-
-              {/* Protocolo de Saúde */}
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Protocolo Veterinário Completo (UnB)
-                </h4>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs text-foreground/90">
-                  {selectedBrunaPet.healthChecks.map((h) => (
-                    <li key={h} className="flex items-center gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 shrink-0" />
-                      <span>{h}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Temperamento */}
-              <div className="space-y-1.5">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Temperamento & Personalidade
-                </h4>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedBrunaPet.temperament.map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full bg-secondary/80 px-2.5 py-1 text-xs font-semibold text-primary"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                <h3 className="text-xl font-bold leading-tight text-primary">
+                  {selectedArticle.title}
+                </h3>
+                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>{selectedArticle.readTime}</span>
                 </div>
               </div>
 
-              {/* Botões do Modal */}
-              <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-border/40">
-                <Button variant="outline" onClick={() => setSelectedBrunaPet(null)}>
+              <div className="rounded-xl border border-border/60 bg-muted/30 p-4 text-xs sm:text-sm leading-relaxed text-foreground">
+                <p>{selectedArticle.content}</p>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button variant="outline" onClick={() => setSelectedArticle(null)}>
                   Fechar
-                </Button>
-                <Button
-                  onClick={() => {
-                    setSelectedBrunaPet(null);
-                    navigate({ to: "/adocao" });
-                  }}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
-                >
-                  <Heart className="h-4 w-4 mr-1.5" />
-                  Iniciar Processo de Adoção
                 </Button>
               </div>
             </div>
@@ -1078,8 +1061,8 @@ function ComunidadePage() {
       <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
         <DialogContent className="max-w-lg rounded-2xl p-6">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl font-bold italic text-primary">
-              <Camera className="h-6 w-6 text-primary" />
+            <DialogTitle className="flex items-center gap-2 text-xl font-bold italic text-primary">
+              <Camera className="h-5 w-5 text-primary" />
               Compartilhe a novidade do seu pet
             </DialogTitle>
           </DialogHeader>
@@ -1150,7 +1133,7 @@ function ComunidadePage() {
                 Legenda / Como ele está?
               </label>
               <Textarea
-                placeholder="Conte para a comunidade como tem sido a adaptação, brincadeiras e rotina com o pet..."
+                placeholder="Conte para a comunidade como tem sido a rotina e adaptação com o pet..."
                 value={form.caption}
                 onChange={(e) => setForm({ ...form, caption: e.target.value })}
                 rows={3}
@@ -1170,62 +1153,6 @@ function ComunidadePage() {
               </Button>
             </div>
           </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Modal para Leitura Completa de Artigo */}
-      <Dialog
-        open={!!selectedArticle}
-        onOpenChange={(open) => !open && setSelectedArticle(null)}
-      >
-        <DialogContent className="max-w-xl rounded-2xl p-6">
-          {selectedArticle && (
-            <div className="space-y-4">
-              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-xl bg-muted">
-                <img
-                  src={selectedArticle.photo}
-                  alt={selectedArticle.title}
-                  className={`h-full w-full ${
-                    selectedArticle.photo.includes("resgatos") ? "object-contain bg-white p-6" : "object-cover"
-                  }`}
-                />
-                <span className="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground shadow">
-                  {selectedArticle.cat}
-                </span>
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-bold leading-tight text-primary">
-                  {selectedArticle.title}
-                </h2>
-                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                  <Clock className="h-3.5 w-3.5" />
-                  <span>{selectedArticle.readTime}</span>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-border/60 bg-muted/30 p-4 text-sm leading-relaxed text-foreground">
-                <p>{selectedArticle.content}</p>
-              </div>
-
-              <div className="flex justify-between items-center pt-2">
-                {selectedArticle.title.includes("Resgatos UnB") ? (
-                  <Button
-                    onClick={() => {
-                      setSelectedArticle(null);
-                      navigate({ to: "/adocao" });
-                    }}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
-                  >
-                    Ver Gatinhos para Adoção
-                  </Button>
-                ) : <span />}
-                <Button variant="outline" onClick={() => setSelectedArticle(null)}>
-                  Fechar
-                </Button>
-              </div>
-            </div>
-          )}
         </DialogContent>
       </Dialog>
 
