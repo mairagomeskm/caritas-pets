@@ -106,7 +106,9 @@
   border: 1px solid var(--border);
   border-radius: 1rem;
   box-shadow: 0 4px 16px -4px oklch(0.53 0.12 45 / 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 @utility no-scrollbar {
@@ -117,8 +119,12 @@
 }
 
 @keyframes story-progress {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 @utility animate-story {
   animation: story-progress 5s linear forwards;

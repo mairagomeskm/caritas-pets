@@ -18,7 +18,13 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { pixPayload } from "@/lib/pix";
 import { useAuth } from "@/hooks/use-auth";
 import { openPetChat } from "@/lib/chat";
@@ -67,60 +73,66 @@ export interface CampaignItem {
 const DEFAULT_CAMPAIGNS: CampaignItem[] = [
   {
     id: "camp-1",
-    title: "Cirurgia Ortopédica da Pretinha",
-    short_description: "Pretinha precisa de cirurgia ortopédica urgente após atropelamento no Cruzeiro.",
+    title: "Fundo Emergencial para Cirurgias Veterinárias",
+    short_description:
+      "Apoio a cirurgias de fratura, internações e procedimentos ortopédicos de animais resgatados no DF.",
     story:
-      "A Pretinha foi encontrada em uma noite fria e chuvosa, deitada no canteiro central no Cruzeiro após um atropelamento covarde sem prestação de socorro. Quando a equipe de resgate chegou, mesmo sentindo dores intensas na patinha quebrada, ela tentou bater o rabinho e encostou o focinho na mão da voluntária. O raio-X confirmou fratura completa da tíbia. Ela precisa de uma placa ortopédica e pinos para não perder a perna e voltar a correr sem dor. Toda ajuda, por menor que seja, salva o destino da Pretinha.",
-    medical_details: "Fratura exposta de tíbia e fíbula. Necessita de osteossíntese com placa de titânio, antibioticoterapia e 30 dias de repouso assistido.",
+      "No Distrito Federal, dezenas de animais são resgatados mensalmente vítimas de atropelamentos e urgências médicas graves. Os custos com placas ortopédicas, exames de imagem e diárias de internação ultrapassam a capacidade de protetores independentes e pequenos abrigos. Este fundo solidário é gerido com total transparência para custear diretamente procedimentos cirúrgicos e medicações em clínicas conveniadas parceiras no DF.",
+    medical_details:
+      "Custos de cirurgias ortopédicas, osteossínteses, anestesia inalatória, antibioticoterapia e medicações pós-operatórias para animais resgatados.",
     urgency: "Cirurgia Marcada",
     photo_url: "https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=800&q=80",
-    goal: 2500,
-    raised: 1540,
-    donors_count: 38,
+    goal: 3500,
+    raised: 2140,
+    donors_count: 58,
     pix_key: "contato@caritaspets.com.br",
     pix_name: "Carita's Pets Solidário",
     pix_key_type: "Chave E-mail",
-    location: "Cruzeiro / Clínica Asa Norte",
+    location: "Distrito Federal (Clínicas Conveniadas)",
     active: true,
-    pets: { id: "seed-pretinha", name: "Pretinha" },
+    pets: null,
   },
   {
     id: "camp-2",
-    title: "Ração e Cuidados para 40 Gatinhos Resgatados",
-    short_description: "Estoque de ração e sachês no final para abrigo comunitário em Ceilândia.",
+    title: "Ração e Suprimentos para Abrigos Parceiros",
+    short_description:
+      "Compra coletiva de ração Super Premium, sachês e medicamentos para abrigos comunitários no DF.",
     story:
-      "Dona Maria dedica sua vida a abrigar gatinhos vítimas de abandono e crueldade em Ceilândia e Taguatinga. Hoje são mais de 40 felinos sob sua tutela, sendo 12 idosos que necessitam de ração renal e sachês úmidos diários. O abrigo é 100% mantido por doações do próprio bolso e de apoiadores. Com os preços dos insumos veterinários subindo, o estoque de ração está prestes a zerar nesta semana. R$ 5,00 já garantem a refeição de um gatinho por um dia inteiro!",
-    medical_details: "Compra emergencial de 12 sacos de 15kg de ração Super Premium, vermífugos orais e 80 sachês para alimentação especial.",
+      "Os abrigos comunitários e lares temporários parceiros no DF acolhem diariamente animais convalescentes, filhotes e idosos resgatados de situações de vulnerabilidade. Manter a nutrição com ração Super Premium e sachês especiais é indispensável para que ganhem imunidade e se recuperem para a adoção. Qualquer valor contribui diretamente para garantir alimentação e desparasitação contínua.",
+    medical_details:
+      "Compra emergencial de sacos de 15kg de ração Super Premium, vermífugos orais, antiparasitários e sachês para alimentação assistida.",
     urgency: "Alimentação",
     photo_url: "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?w=800&q=80",
-    goal: 1800,
-    raised: 1120,
-    donors_count: 47,
+    goal: 2000,
+    raised: 1420,
+    donors_count: 49,
     pix_key: "contato@caritaspets.com.br",
     pix_name: "Carita's Pets Solidário",
     pix_key_type: "Chave E-mail",
-    location: "Ceilândia Sul",
+    location: "Brasília e Regiões Administrativas",
     active: true,
     pets: null,
   },
   {
     id: "camp-3",
-    title: "Tratamento e Cura do Bento (Leishmaniose)",
-    short_description: "Bento viveu preso a uma corrente. Hoje luta pela vida com muita bravura!",
+    title: "Fundo de Castração Solidária e Controle Populacional",
+    short_description:
+      "Esterilização cirúrgica e vacinação essencial em mutirões comunitários para estancar o abandono.",
     story:
-      "Bento passou quase dois anos acorrentado em um quintal abandonado. Quando a denúncia chegou, ele pesava menos da metade do peso ideal, quase sem pelos e com feridas abertas. Diagnosticado com Leishmaniose Visceral Canina, muitos sugeriram a eutanásia, mas o brilho no olhar dele dizia o oposto: Bento quer viver! Ele já iniciou o protocolo moderno de tratamento com Milteforan e alopurinol. Em 3 semanas, ganhou peso e deu seus primeiros pulos de alegria.",
-    medical_details: "Ciclo de 28 dias de Miltefosina 2%, exames de função renal periódicos e acompanhamento nutricional de recuperação.",
-    urgency: "Urgente",
-    photo_url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&q=80",
-    goal: 3200,
-    raised: 1980,
-    donors_count: 52,
+      "A esterilização é a única medida verdadeiramente ética e eficaz para estancar o abandono de ninhadas nas ruas do DF. O Fundo de Castração Solidária apoia mutirões de castração e vacinação antirrábica voltados para colônias de animais resgatados e famílias em vulnerabilidade social em regiões como Gama, Ceilândia e campus Darcy Ribeiro.",
+    medical_details:
+      "Cirurgias de esterilização realizadas por médicos veterinários com anestesia segura, analgesia e antibioticoterapia preventiva.",
+    urgency: "Tratamento Contínuo",
+    photo_url: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?w=800&q=80",
+    goal: 2800,
+    raised: 1890,
+    donors_count: 44,
     pix_key: "contato@caritaspets.com.br",
     pix_name: "Carita's Pets Solidário",
     pix_key_type: "Chave E-mail",
-    location: "Taguatinga Norte",
+    location: "DF e Entorno",
     active: true,
-    pets: { id: "seed-bento", name: "Bento" },
+    pets: null,
   },
 ];
 
@@ -149,29 +161,31 @@ function VaquinhasPage() {
   });
 
   // Merge default rich campaigns with any DB campaigns
-  const campaigns: CampaignItem[] = (data && data.length > 0)
-    ? data.map((d: any, idx: number) => {
-        const fallback = DEFAULT_CAMPAIGNS[idx % DEFAULT_CAMPAIGNS.length] || DEFAULT_CAMPAIGNS[0]!;
-        return {
-          id: d.id,
-          title: d.title || fallback.title,
-          short_description: d.description || fallback.short_description,
-          story: d.story || fallback.story,
-          medical_details: d.medical_details || fallback.medical_details,
-          urgency: d.urgency || fallback.urgency,
-          photo_url: d.photo_url || fallback.photo_url,
-          goal: Number(d.goal) || fallback.goal,
-          raised: Number(d.raised) || fallback.raised,
-          donors_count: d.donors_count || fallback.donors_count,
-          pix_key: d.pix_key || fallback.pix_key,
-          pix_name: d.pix_name || fallback.pix_name,
-          pix_key_type: fallback.pix_key_type,
-          location: fallback.location,
-          active: d.active ?? true,
-          pets: d.pets || fallback.pets,
-        };
-      })
-    : DEFAULT_CAMPAIGNS;
+  const campaigns: CampaignItem[] =
+    data && data.length > 0
+      ? data.map((d: any, idx: number) => {
+          const fallback =
+            DEFAULT_CAMPAIGNS[idx % DEFAULT_CAMPAIGNS.length] || DEFAULT_CAMPAIGNS[0]!;
+          return {
+            id: d.id,
+            title: d.title || fallback.title,
+            short_description: d.description || fallback.short_description,
+            story: d.story || fallback.story,
+            medical_details: d.medical_details || fallback.medical_details,
+            urgency: d.urgency || fallback.urgency,
+            photo_url: d.photo_url || fallback.photo_url,
+            goal: Number(d.goal) || fallback.goal,
+            raised: Number(d.raised) || fallback.raised,
+            donors_count: d.donors_count || fallback.donors_count,
+            pix_key: d.pix_key || fallback.pix_key,
+            pix_name: d.pix_name || fallback.pix_name,
+            pix_key_type: fallback.pix_key_type,
+            location: fallback.location,
+            active: d.active ?? true,
+            pets: d.pets || fallback.pets,
+          };
+        })
+      : DEFAULT_CAMPAIGNS;
 
   const parsedAmount = Number(amount.replace(",", ".")) || undefined;
   const pixCode = selectedPix
@@ -220,11 +234,13 @@ function VaquinhasPage() {
               Vaquinhas Solidárias para Pets no DF
             </h1>
             <p className="text-base text-muted-foreground leading-relaxed">
-              Ajude a custear cirurgias ortopédicas, medicamentos vitais e ração para animais resgatados por ONGs e protetores parceiros.
+              Ajude a custear cirurgias ortopédicas, medicamentos vitais e ração para animais
+              resgatados por ONGs e protetores parceiros.
             </p>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-2 text-sm font-semibold text-primary">
               <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-full border border-primary/20 shadow-xs">
-                💝 <strong className="text-foreground">Doações de qualquer valor</strong> (a partir de R$ 1,00)
+                💝 <strong className="text-foreground">Doações de qualquer valor</strong> (a partir
+                de R$ 1,00)
               </span>
               <span className="flex items-center gap-1.5 bg-white/80 px-3 py-1 rounded-full border border-primary/20 shadow-xs">
                 ⚡ Chave PIX direta e sem intermediários
@@ -245,7 +261,8 @@ function VaquinhasPage() {
       {/* Campaigns Grid */}
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {campaigns.map((c) => {
-          const pct = c.goal > 0 ? Math.min(100, Math.round((Number(c.raised) / Number(c.goal)) * 100)) : 0;
+          const pct =
+            c.goal > 0 ? Math.min(100, Math.round((Number(c.raised) / Number(c.goal)) * 100)) : 0;
           return (
             <article
               key={c.id}
@@ -287,9 +304,7 @@ function VaquinhasPage() {
 
                   {/* Emotional story snippet */}
                   <div className="rounded-xl bg-primary/5 p-3.5 border border-primary/15 text-sm text-foreground/85 leading-relaxed">
-                    <p className="line-clamp-3 italic">
-                      "{c.story}"
-                    </p>
+                    <p className="line-clamp-3 italic">"{c.story}"</p>
                     <button
                       type="button"
                       onClick={() => setStoryModalPet(c)}
@@ -312,7 +327,9 @@ function VaquinhasPage() {
                       />
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground pt-0.5">
-                      <span><strong>{brl(Number(c.raised))}</strong> recebidos</span>
+                      <span>
+                        <strong>{brl(Number(c.raised))}</strong> recebidos
+                      </span>
                       {c.donors_count && <span>{c.donors_count} doadores solidários</span>}
                     </div>
                   </div>
@@ -370,7 +387,9 @@ function VaquinhasPage() {
                   História de Vida: {storyModalPet.title}
                 </DialogTitle>
                 <DialogDescription>
-                  {storyModalPet.location ? `Resgatado no Distrito Federal (${storyModalPet.location})` : "Animal atendido pela rede Carita's Pets"}
+                  {storyModalPet.location
+                    ? `Resgatado no Distrito Federal (${storyModalPet.location})`
+                    : "Animal atendido pela rede Carita's Pets"}
                 </DialogDescription>
               </DialogHeader>
 
@@ -384,7 +403,8 @@ function VaquinhasPage() {
 
               <div className="space-y-3">
                 <h4 className="font-bold text-primary text-base flex items-center gap-1.5">
-                  <Heart className="h-4 w-4 text-destructive fill-current" /> A Trajetória e Superação
+                  <Heart className="h-4 w-4 text-destructive fill-current" /> A Trajetória e
+                  Superação
                 </h4>
                 <p className="text-sm leading-relaxed text-foreground/90 bg-muted/30 p-4 rounded-xl border border-primary/10">
                   {storyModalPet.story}
@@ -394,7 +414,8 @@ function VaquinhasPage() {
               {storyModalPet.medical_details && (
                 <div className="space-y-2">
                   <h4 className="font-bold text-foreground text-sm flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" /> Detalhes Clínicos e Procedimentos
+                    <ShieldCheck className="h-4 w-4 text-emerald-600" /> Detalhes Clínicos e
+                    Procedimentos
                   </h4>
                   <p className="text-xs text-muted-foreground bg-accent/60 p-3 rounded-lg border border-primary/20">
                     {storyModalPet.medical_details}
@@ -433,7 +454,8 @@ function VaquinhasPage() {
             <div className="space-y-4">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold text-primary flex items-center gap-2">
-                  <Heart className="h-5 w-5 text-destructive fill-current" /> Doar para: {selectedPix.title}
+                  <Heart className="h-5 w-5 text-destructive fill-current" /> Doar para:{" "}
+                  {selectedPix.title}
                 </DialogTitle>
                 <DialogDescription>
                   Doe qualquer quantia pelo PIX. Todo valor é fundamental!
@@ -463,7 +485,9 @@ function VaquinhasPage() {
                 </div>
 
                 <div className="relative mt-2">
-                  <span className="absolute left-3 top-2.5 text-sm font-bold text-muted-foreground">R$</span>
+                  <span className="absolute left-3 top-2.5 text-sm font-bold text-muted-foreground">
+                    R$
+                  </span>
                   <Input
                     className="pl-9 font-bold text-base"
                     placeholder="Outro valor, ex: 15,00"
@@ -490,7 +514,9 @@ function VaquinhasPage() {
               {/* Direct PIX Key Option */}
               <div className="rounded-lg bg-accent/70 p-3 border border-primary/20 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-primary">Chave PIX Direta ({selectedPix.pix_key_type || "E-mail"}):</span>
+                  <span className="text-xs font-bold text-primary">
+                    Chave PIX Direta ({selectedPix.pix_key_type || "E-mail"}):
+                  </span>
                   <Button
                     type="button"
                     variant="ghost"
@@ -498,30 +524,39 @@ function VaquinhasPage() {
                     className="h-7 px-2 text-xs font-bold text-primary"
                     onClick={() => handleCopyKey(selectedPix.pix_key)}
                   >
-                    {copiedKey ? <Check className="h-3.5 w-3.5 text-emerald-600 mr-1" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                    {copiedKey ? (
+                      <Check className="h-3.5 w-3.5 text-emerald-600 mr-1" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5 mr-1" />
+                    )}
                     {copiedKey ? "Copiada!" : "Copiar Chave"}
                   </Button>
                 </div>
                 <p className="text-xs font-mono font-bold text-foreground break-all bg-background/80 p-1.5 rounded border border-primary/20">
                   {selectedPix.pix_key}
                 </p>
-                <p className="text-[11px] text-muted-foreground">Favorecido: {selectedPix.pix_name}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Favorecido: {selectedPix.pix_name}
+                </p>
               </div>
 
               {/* PIX Copia e Cola Code */}
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Código PIX Copia e Cola:</label>
+                <label className="text-xs font-semibold text-muted-foreground">
+                  Código PIX Copia e Cola:
+                </label>
                 <p className="max-h-16 overflow-y-auto break-all rounded bg-muted/80 p-2 font-mono text-[11px] text-muted-foreground border border-primary/10">
                   {pixCode}
                 </p>
               </div>
 
               <div className="flex flex-col gap-2">
-                <Button
-                  onClick={handleCopyCode}
-                  className="w-full font-bold shadow-sm"
-                >
-                  {copiedCode ? <Check className="h-4 w-4 mr-1.5" /> : <Copy className="h-4 w-4 mr-1.5" />}
+                <Button onClick={handleCopyCode} className="w-full font-bold shadow-sm">
+                  {copiedCode ? (
+                    <Check className="h-4 w-4 mr-1.5" />
+                  ) : (
+                    <Copy className="h-4 w-4 mr-1.5" />
+                  )}
                   {copiedCode ? "Código Copiado!" : "Copiar PIX Copia e Cola"}
                 </Button>
                 <Button

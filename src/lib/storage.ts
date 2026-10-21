@@ -1,11 +1,13 @@
 import { supabase } from "@/integrations/supabase/client";
+import { sanitizeMediaUpload } from "./exif-sanitizer";
 
 const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
 
 const ext = (f: File | Blob, fallback: string) =>
   f instanceof File && f.name.includes(".") ? f.name.split(".").pop() : fallback;
 
-export async function uploadMedia(userId: string, file: File): Promise<string> {
+export async function uploadMedia(userId: string, rawFile: File): Promise<string> {
+  const file = await sanitizeMediaUpload(rawFile);
   try {
     const path = `${userId}/${crypto.randomUUID()}.${ext(file, "jpg")}`;
     const { error } = await supabase.storage.from("media").upload(path, file, {
@@ -13,7 +15,9 @@ export async function uploadMedia(userId: string, file: File): Promise<string> {
       ...(file.type ? { contentType: file.type } : {}),
     });
     if (!error) {
-      const { data, error: e2 } = await supabase.storage.from("media").createSignedUrl(path, TEN_YEARS);
+      const { data, error: e2 } = await supabase.storage
+        .from("media")
+        .createSignedUrl(path, TEN_YEARS);
       if (!e2 && data?.signedUrl) return data.signedUrl;
       const { data: pub } = supabase.storage.from("media").getPublicUrl(path);
       if (pub?.publicUrl) return pub.publicUrl;
@@ -31,7 +35,8 @@ export async function uploadMedia(userId: string, file: File): Promise<string> {
   });
 }
 
-export async function uploadProof(userId: string, file: File): Promise<string> {
+export async function uploadProof(userId: string, rawFile: File): Promise<string> {
+  const file = await sanitizeMediaUpload(rawFile);
   const fallback = file.type === "application/pdf" ? "pdf" : "jpg";
   const path = `${userId}/comprovante-${Date.now()}.${ext(file, fallback)}`;
 
@@ -41,7 +46,9 @@ export async function uploadProof(userId: string, file: File): Promise<string> {
       ...(file.type ? { contentType: file.type } : {}),
     });
     if (!error) {
-      const { data, error: e2 } = await supabase.storage.from("proofs").createSignedUrl(path, TEN_YEARS);
+      const { data, error: e2 } = await supabase.storage
+        .from("proofs")
+        .createSignedUrl(path, TEN_YEARS);
       if (!e2 && data?.signedUrl) return data.signedUrl;
       const { data: pub } = supabase.storage.from("proofs").getPublicUrl(path);
       if (pub?.publicUrl) return pub.publicUrl;
@@ -63,7 +70,15 @@ export async function uploadProof(userId: string, file: File): Promise<string> {
   });
 }
 
-export async function uploadChatFile(conversationId: string, file: File | Blob, fallbackExt: string) {
+export async function uploadChatFile(
+  conversationId: string,
+  rawFile: File | Blob,
+  fallbackExt: string,
+) {
+  let file = rawFile;
+  if (rawFile instanceof File) {
+    file = await sanitizeMediaUpload(rawFile);
+  }
   const path = `${conversationId}/${crypto.randomUUID()}.${ext(file, fallbackExt)}`;
   const { error } = await supabase.storage.from("chat-attachments").upload(path, file, {
     ...(file.type ? { contentType: file.type } : {}),
@@ -74,7 +89,12 @@ export async function uploadChatFile(conversationId: string, file: File | Blob, 
 
 export async function signedUrl(bucket: string, path: string): Promise<string | null> {
   if (!path) return null;
-  if (path.startsWith("data:") || path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:")) {
+  if (
+    path.startsWith("data:") ||
+    path.startsWith("http://") ||
+    path.startsWith("https://") ||
+    path.startsWith("blob:")
+  ) {
     return path;
   }
   try {

@@ -1,8 +1,16 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, ShieldCheck, Upload, FileText, AlertCircle, RefreshCw } from "lucide-react";
+import {
+  CheckCircle2,
+  ShieldCheck,
+  Upload,
+  FileText,
+  AlertCircle,
+  RefreshCw,
+  Lock,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useDraft } from "@/lib/drafts";
@@ -50,7 +58,11 @@ function PerfilPage() {
     queryKey: ["profile", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", user!.id).single();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user!.id)
+        .single();
       if (error) throw error;
       return data;
     },
@@ -113,10 +125,7 @@ function PerfilPage() {
     try {
       const proof_path = await uploadProof(user.id, file);
 
-      const { error } = await supabase
-        .from("profiles")
-        .update({ proof_path })
-        .eq("id", user.id);
+      const { error } = await supabase.from("profiles").update({ proof_path }).eq("id", user.id);
       if (error) throw error;
 
       setFile(null);
@@ -223,7 +232,9 @@ function PerfilPage() {
             key={o}
             onClick={() => d.update({ [k]: o } as Partial<typeof EMPTY>)}
             className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition-colors ${
-              v[k] === o ? "border-primary bg-secondary text-secondary-foreground shadow-xs" : "bg-card hover:bg-accent"
+              v[k] === o
+                ? "border-primary bg-secondary text-secondary-foreground shadow-xs"
+                : "bg-card hover:bg-accent"
             }`}
           >
             {o}
@@ -243,7 +254,9 @@ function PerfilPage() {
         }}
       >
         <div>
-          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">Editar Meu Perfil</h1>
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
+            Editar Meu Perfil
+          </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Mantenha seus dados atualizados para adotar com segurança e falar com protetores do DF.
           </p>
@@ -263,7 +276,10 @@ function PerfilPage() {
             <Input value={v.name} onChange={(e) => d.update({ name: e.target.value })} />
           </Field>
           <Field label="Telefone / WhatsApp">
-            <Input value={v.phone} onChange={(e) => d.update({ phone: maskPhone(e.target.value) })} />
+            <Input
+              value={v.phone}
+              onChange={(e) => d.update({ phone: maskPhone(e.target.value) })}
+            />
           </Field>
         </div>
 
@@ -273,53 +289,96 @@ function PerfilPage() {
           </Field>
         ) : (
           <Field label="CPF">
-            <Input placeholder="000.000.000-00" value={v.cpf} onChange={(e) => d.update({ cpf: maskCPF(e.target.value) })} />
+            <Input
+              placeholder="000.000.000-00"
+              value={v.cpf}
+              onChange={(e) => d.update({ cpf: maskCPF(e.target.value) })}
+            />
           </Field>
         )}
 
         <div className="grid gap-3 sm:grid-cols-[160px_1fr]">
           <Field label="CEP" hint={cepMsg ?? "Apenas DF e entorno"}>
-            <Input placeholder="70000-000" value={v.cep} onChange={(e) => d.update({ cep: maskCEP(e.target.value) })} onBlur={checkCep} />
+            <Input
+              placeholder="70000-000"
+              value={v.cep}
+              onChange={(e) => d.update({ cep: maskCEP(e.target.value) })}
+              onBlur={checkCep}
+            />
           </Field>
           <Field label="Endereço">
-            <Input placeholder="Ex: SQS 308 Bloco D, Asa Sul" value={v.address} onChange={(e) => d.update({ address: e.target.value })} />
+            <Input
+              placeholder="Ex: SQS 308 Bloco D, Asa Sul"
+              value={v.address}
+              onChange={(e) => d.update({ address: e.target.value })}
+            />
           </Field>
         </div>
 
         {!isAdopter && (
           <Field label="Instagram / Site / Rede social">
-            <Input value={v.social_link} onChange={(e) => d.update({ social_link: e.target.value })} />
+            <Input
+              value={v.social_link}
+              onChange={(e) => d.update({ social_link: e.target.value })}
+            />
           </Field>
         )}
 
         {/* Adopter Questionnaire and Residence Proof */}
         {isAdopter && (
           <div className="space-y-5 rounded-2xl border border-primary/25 bg-accent/40 p-5 md:p-6">
-            <div>
-              <h2 className="text-xl font-bold text-primary flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-primary" /> Censo de Adoção e Verificação
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Responda às perguntas abaixo e anexe seu comprovante para liberar o chat direto de adoção.
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="text-xl font-bold text-primary flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-primary" /> Censo de Adoção e Verificação
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Responda às perguntas abaixo e anexe seu comprovante para liberar o chat direto de
+                  adoção.
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-100 rounded-full px-2.5 py-0.5 w-fit">
+                <Lock className="h-3 w-3 text-emerald-700" /> LGPD Art. 6º, III · Minimização
+              </span>
             </div>
 
-            {choice("moradia", "Você mora em casa ou apartamento?", ["Casa", "Apartamento", "Chácara"])}
+            {choice("moradia", "Você mora em casa ou apartamento?", [
+              "Casa",
+              "Apartamento",
+              "Chácara",
+            ])}
             {choice("telas", "Possui telas de proteção?", ["Sim", "Não", "Vou instalar"])}
-            {choice("outros_animais", "Já tem outros animais?", ["Não", "Cães", "Gatos", "Cães e gatos"])}
+            {choice("outros_animais", "Já tem outros animais?", [
+              "Não",
+              "Cães",
+              "Gatos",
+              "Cães e gatos",
+            ])}
             {choice("concordam", "Todos na casa concordam com a adoção?", ["Sim", "Não"])}
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Quantas pessoas moram com você?">
-                <Input placeholder="ex: 2 pessoas" value={v.pessoas} onChange={(e) => d.update({ pessoas: e.target.value })} />
+                <Input
+                  placeholder="ex: 2 pessoas"
+                  value={v.pessoas}
+                  onChange={(e) => d.update({ pessoas: e.target.value })}
+                />
               </Field>
               <Field label="Quantas horas o pet ficaria sozinho por dia?">
-                <Input placeholder="ex: 4 horas" value={v.tempo_sozinho} onChange={(e) => d.update({ tempo_sozinho: e.target.value })} />
+                <Input
+                  placeholder="ex: 4 horas"
+                  value={v.tempo_sozinho}
+                  onChange={(e) => d.update({ tempo_sozinho: e.target.value })}
+                />
               </Field>
             </div>
 
             <Field label="Por que deseja adotar?">
-              <Input placeholder="Conte um pouco sobre sua rotina e amor pelos animais..." value={v.motivo} onChange={(e) => d.update({ motivo: e.target.value })} />
+              <Input
+                placeholder="Conte um pouco sobre sua rotina e amor pelos animais..."
+                value={v.motivo}
+                onChange={(e) => d.update({ motivo: e.target.value })}
+              />
             </Field>
 
             {/* Proof Upload Area */}
@@ -341,7 +400,9 @@ function PerfilPage() {
                     className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs"
                   >
                     <Upload className="h-4 w-4" />
-                    {busyProof ? "Enviando comprovante..." : "Enviar Comprovante de Residência Agora"}
+                    {busyProof
+                      ? "Enviando comprovante..."
+                      : "Enviar Comprovante de Residência Agora"}
                   </Button>
                 </div>
               )}
@@ -349,7 +410,8 @@ function PerfilPage() {
               {profile.proof_path && !file && (
                 <div className="flex items-center justify-between rounded-lg bg-emerald-50 px-3 py-2 text-xs text-emerald-900 border border-emerald-200">
                   <span className="flex items-center gap-1.5 font-bold">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Comprovante já registrado no sistema
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Comprovante já registrado
+                    no sistema
                   </span>
                   {proofUrl && (
                     <a
@@ -398,7 +460,8 @@ function PerfilPage() {
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Perfil Verificado
               </p>
               <p className="text-emerald-700 leading-relaxed">
-                Foto e comprovante de residência no DF validados. Você está liberado para conversar diretamente com ONGs e protetores!
+                Foto e comprovante de residência no DF validados. Você está liberado para conversar
+                diretamente com ONGs e protetores!
               </p>
             </div>
           ) : (
@@ -407,7 +470,8 @@ function PerfilPage() {
                 <AlertCircle className="h-4 w-4 text-amber-600" /> Verificação Pendente
               </p>
               <p className="text-amber-800 leading-relaxed">
-                Envie sua <b>foto de perfil</b> e <b>comprovante de residência</b> para liberar o chat de adoção.
+                Envie sua <b>foto de perfil</b> e <b>comprovante de residência</b> para liberar o
+                chat de adoção.
               </p>
             </div>
           )
@@ -416,7 +480,9 @@ function PerfilPage() {
             <p className="flex items-center gap-1.5 font-extrabold text-emerald-800 text-sm">
               <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Perfil Institucional
             </p>
-            <p className="mt-1 text-emerald-700">Conta oficial de {TYPE_LABEL[profile.profile_type]} ativa na plataforma.</p>
+            <p className="mt-1 text-emerald-700">
+              Conta oficial de {TYPE_LABEL[profile.profile_type]} ativa na plataforma.
+            </p>
           </div>
         )}
 
@@ -456,6 +522,19 @@ function PerfilPage() {
               )}
             </div>
           )}
+        </div>
+
+        <div className="pt-3 border-t border-primary/20">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="w-full gap-2 border-primary/30 text-xs font-semibold"
+          >
+            <Link to="/privacidade">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" /> Portal de Privacidade (LGPD)
+            </Link>
+          </Button>
         </div>
       </aside>
     </div>

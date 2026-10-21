@@ -351,3 +351,88 @@ begin
 end; $$;
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url text;
+
+-- ==============================================================================
+-- LGPD Compliance (Lei nº 13.709/2018)
+-- ==============================================================================
+
+create table if not exists public.consent_logs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  consent_type text not null,
+  version text not null default '1.0',
+  status text not null check (status in ('granted', 'revoked')),
+  ip_address text,
+  user_agent text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+grant select, insert on public.consent_logs to authenticated;
+grant all on public.consent_logs to service_role;
+alter table public.consent_logs enable row level security;
+
+create policy "users can view own consent logs" on public.consent_logs
+  for select to authenticated
+  using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+
+create policy "users can insert own consent logs" on public.consent_logs
+  for insert to authenticated
+  with check (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+
+create table if not exists public.audit_logs (
+  id uuid primary key default gen_random_uuid(),
+  actor_id uuid references auth.users(id) on delete set null,
+  actor_role text not null default 'user',
+  target_user_id uuid references auth.users(id) on delete set null,
+  action text not null,
+  resource text not null default 'profiles',
+  details jsonb default '{}'::jsonb,
+  ip_address text,
+  user_agent text,
+  created_at timestamptz not null default now()
+);
+
+grant select, insert on public.audit_logs to authenticated;
+grant all on public.audit_logs to service_role;
+alter table public.audit_logs enable row level security;
+
+create policy "users and admins can view audit logs" on public.audit_logs
+  for select to authenticated
+  using (
+    target_user_id = auth.uid() or 
+    actor_id = auth.uid() or 
+    public.has_role(auth.uid(), 'admin')
+  );
+
+create policy "authenticated can insert audit logs" on public.audit_logs
+  for insert to authenticated
+  with check (actor_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+
+create table if not exists public.adoption_contracts_vault (
+  id uuid primary key default gen_random_uuid(),
+  pet_id uuid references public.pets(id) on delete set null,
+  original_user_id uuid references auth.users(id) on delete set null,
+  anonymized_user_identifier text,
+  contract_url text not null,
+  legal_basis text not null default 'Art. 7º, VI e Art. 16, I - Exercício regular de direitos e cumprimento de obrigação legal',
+  signed_at timestamptz not null default now(),
+  retention_until timestamptz not null default (now() + interval '5 years'),
+  is_anonymized boolean not null default false,
+  notes text,
+  created_at timestamptz not null default now()
+);
+
+grant select on public.adoption_contracts_vault to authenticated;
+grant all on public.adoption_contracts_vault to service_role;
+alter table public.adoption_contracts_vault enable row level security;
+
+create policy "admins view adoption contracts vault" on public.adoption_contracts_vault
+  for select to authenticated
+  using (public.has_role(auth.uid(), 'admin') or original_user_id = auth.uid());
+
+create policy "admins manage adoption contracts vault" on public.adoption_contracts_vault
+  for all to authenticated
+  using (public.has_role(auth.uid(), 'admin'))
+  with check (public.has_role(auth.uid(), 'admin'));
+

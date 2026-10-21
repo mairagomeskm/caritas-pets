@@ -55,7 +55,9 @@ export function useDraft<T extends object>(key: string, initial: T) {
   const label = savedAt
     ? (() => {
         const m = Math.floor((Date.now() - savedAt) / 60000);
-        return m < 1 ? "Última alteração salva agora há pouco" : `Última alteração salva há ${m} minuto${m > 1 ? "s" : ""}`;
+        return m < 1
+          ? "Última alteração salva agora há pouco"
+          : `Última alteração salva há ${m} minuto${m > 1 ? "s" : ""}`;
       })()
     : null;
 

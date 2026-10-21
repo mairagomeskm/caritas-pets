@@ -50,7 +50,9 @@ export function FileUploadDropzone({
     if (!selectedFile) return;
 
     if (selectedFile.size > maxSizeMb * 1024 * 1024) {
-      setErrorMsg(`O arquivo excede o limite de ${maxSizeMb}MB. Por favor, escolha um arquivo menor.`);
+      setErrorMsg(
+        `O arquivo excede o limite de ${maxSizeMb}MB. Por favor, escolha um arquivo menor.`,
+      );
       return;
     }
 
@@ -162,14 +164,15 @@ export function FileUploadDropzone({
             "group flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center cursor-pointer transition-all duration-200",
             isDragging
               ? "border-primary bg-primary/10 scale-[1.01]"
-              : "border-primary/30 bg-card hover:border-primary/70 hover:bg-primary/5"
+              : "border-primary/30 bg-card hover:border-primary/70 hover:bg-primary/5",
           )}
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:scale-110 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-200 mb-3">
             <UploadCloud className="h-6 w-6" />
           </div>
           <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-            Arraste e solte o arquivo aqui ou <span className="text-primary underline">clique para selecionar</span>
+            Arraste e solte o arquivo aqui ou{" "}
+            <span className="text-primary underline">clique para selecionar</span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">{hint}</p>
         </div>

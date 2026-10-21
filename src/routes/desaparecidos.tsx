@@ -20,7 +20,13 @@ import { uploadMedia } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { FileUploadDropzone } from "@/components/ui/file-upload-dropzone";
 import { REGIONS } from "@/lib/regions";
 
@@ -57,44 +63,6 @@ export interface MissingPet {
   created_at?: string | undefined;
 }
 
-const DEFAULT_MISSING: MissingPet[] = [
-  {
-    id: "miss-1",
-    name: "Caramelo",
-    species: "Cão",
-    photo_url: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=800&q=80",
-    location: "Cruzeiro Velho, próximo à feira permanente",
-    region: "Cruzeiro",
-    description: "Vira-lata amarelo porte médio, muito dócil. Estava com coleira de couro azul com plaquinha. Família aflita.",
-    contact: "(61) 99123-4567",
-    reward: "Recompensa R$ 300",
-    date_lost: "01/10/2026",
-  },
-  {
-    id: "miss-2",
-    name: "Nina",
-    species: "Gato",
-    photo_url: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?w=800&q=80",
-    location: "Asa Sul, SQS 308 Bloco D",
-    region: "Plano Piloto",
-    description: "Gata tricolor castrada, olhos verdes. Muito assustada e tímida, costuma se esconder embaixo de carros.",
-    contact: "(61) 99876-5432",
-    date_lost: "02/10/2026",
-  },
-  {
-    id: "miss-3",
-    name: "Thor",
-    species: "Cão",
-    photo_url: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80",
-    location: "Águas Claras, Parque Ecológico",
-    region: "Águas Claras",
-    description: "Filhote mestiço com pelo cor palha e focinho preto. Fugiu durante o passeio sem guia. Muito brincalhão.",
-    contact: "(61) 98234-5678",
-    reward: "Recompensa R$ 200",
-    date_lost: "03/10/2026",
-  },
-];
-
 function DesaparecidosPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("Todas");
@@ -127,7 +95,7 @@ function DesaparecidosPage() {
     },
   });
 
-  const baseList: MissingPet[] = data && data.length > 0 ? (data as any) : DEFAULT_MISSING;
+  const baseList: MissingPet[] = data && data.length > 0 ? (data as any) : [];
   const combinedList = [...localList, ...baseList];
 
   const filtered = combinedList.filter((m) => {
@@ -146,9 +114,7 @@ function DesaparecidosPage() {
 
   const getWhatsAppUrl = (phone: string, petName: string, petLocation: string) => {
     const cleanDigits = phone.replace(/\D/g, "");
-    const formattedNumber = cleanDigits.startsWith("55")
-      ? cleanDigits
-      : `55${cleanDigits}`;
+    const formattedNumber = cleanDigits.startsWith("55") ? cleanDigits : `55${cleanDigits}`;
     const message = `Olá! Vi o cartaz do pet "${petName}" que desapareceu em "${petLocation}" no Carita's Pets e tenho informações/avistamento para compartilhar.`;
     return `https://wa.me/${formattedNumber}?text=${encodeURIComponent(message)}`;
   };
@@ -159,11 +125,13 @@ function DesaparecidosPage() {
     }Se tiver notícias, entre em contato: ${m.contact}!`;
 
     if (navigator.share) {
-      await navigator.share({
-        title: `Procura-se ${m.name} - Carita's Pets DF`,
-        text,
-        url: window.location.href,
-      }).catch(() => {});
+      await navigator
+        .share({
+          title: `Procura-se ${m.name} - Carita's Pets DF`,
+          text,
+          url: window.location.href,
+        })
+        .catch(() => {});
     } else {
       await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
       toast.success("Informações do cartaz copiadas com sucesso!");
@@ -242,7 +210,8 @@ function DesaparecidosPage() {
             Pets Desaparecidos
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mt-1 max-w-xl">
-            Avistou algum animal perdido? Fale direto com a família no WhatsApp ou publique um cartaz gratuitamente.
+            Avistou algum animal perdido? Fale direto com a família no WhatsApp ou publique um
+            cartaz gratuitamente.
           </p>
         </div>
 
@@ -284,9 +253,19 @@ function DesaparecidosPage() {
       {/* Grid of Missing Pets Posters */}
       {filtered.length === 0 ? (
         <div className="vintage-card p-10 text-center space-y-3">
-          <p className="text-lg font-bold text-primary">Nenhum cartaz encontrado com esses filtros.</p>
-          <p className="text-sm text-muted-foreground">Tente alterar os termos da busca ou a região selecionada.</p>
-          <Button variant="outline" onClick={() => { setSearchTerm(""); setSelectedRegion("Todas"); }}>
+          <p className="text-lg font-bold text-primary">
+            Nenhum cartaz encontrado com esses filtros.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Tente alterar os termos da busca ou a região selecionada.
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedRegion("Todas");
+            }}
+          >
             Limpar filtros
           </Button>
         </div>
@@ -388,7 +367,8 @@ function DesaparecidosPage() {
           </div>
           <div className="rounded-xl bg-card p-3 border border-primary/10">
             <strong className="block text-foreground mb-1">2. Contate Clínicas Próximas</strong>
-            Ligue para veterinárias e zoonoses da sua região. Animais feridos costumam ser levados por pedestres.
+            Ligue para veterinárias e zoonoses da sua região. Animais feridos costumam ser levados
+            por pedestres.
           </div>
           <div className="rounded-xl bg-card p-3 border border-primary/10">
             <strong className="block text-foreground mb-1">3. Deixe Itens com seu Cheiro</strong>
@@ -459,7 +439,9 @@ function DesaparecidosPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground/90">Local Específico *</label>
+                <label className="text-xs font-semibold text-foreground/90">
+                  Local Específico *
+                </label>
                 <Input
                   required
                   placeholder="ex: SQS 308 Bloco D, Asa Sul"
@@ -471,7 +453,9 @@ function DesaparecidosPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-semibold text-foreground/90">Telefone / WhatsApp *</label>
+                <label className="text-xs font-semibold text-foreground/90">
+                  Telefone / WhatsApp *
+                </label>
                 <Input
                   required
                   placeholder="(61) 99999-0000"
@@ -481,7 +465,9 @@ function DesaparecidosPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-foreground/90">Recompensa (Opcional)</label>
+                <label className="text-xs font-semibold text-foreground/90">
+                  Recompensa (Opcional)
+                </label>
                 <Input
                   placeholder="ex: 200,00"
                   value={reward}
@@ -506,7 +492,11 @@ function DesaparecidosPage() {
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold"
+              >
                 {isSubmitting ? "Publicando..." : "Publicar Cartaz"}
               </Button>
             </div>

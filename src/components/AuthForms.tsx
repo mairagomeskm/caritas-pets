@@ -1,13 +1,22 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Heart, Building2, HandHeart, Lock } from "lucide-react";
+import { Heart, Building2, HandHeart, Lock, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { recordConsent } from "@/lib/privacy-consent";
 import {
-  isValidCNPJ, isValidCPF, lookupCep, maskCEP, maskCNPJ, maskCPF, maskPhone, onlyDigits,
+  isValidCNPJ,
+  isValidCPF,
+  lookupCep,
+  maskCEP,
+  maskCNPJ,
+  maskCPF,
+  maskPhone,
+  onlyDigits,
 } from "@/lib/validators";
 
 type Kind = "adotante" | "ong" | "protetor";
@@ -20,14 +29,18 @@ export function AuthForms() {
           <TabsTrigger value="entrar">Entrar</TabsTrigger>
           <TabsTrigger value="cadastrar">Cadastrar</TabsTrigger>
         </TabsList>
-        <TabsContent value="entrar"><Login /></TabsContent>
-        <TabsContent value="cadastrar"><Register /></TabsContent>
+        <TabsContent value="entrar">
+          <Login />
+        </TabsContent>
+        <TabsContent value="cadastrar">
+          <Register />
+        </TabsContent>
       </Tabs>
       <div className="mt-5 flex items-start gap-3 rounded-lg border border-primary/30 bg-accent p-3 text-sm">
         <Lock className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
         <p>
-          <b>Privacidade Garantida:</b> Seus dados pessoais e documentos de login são criptografados, estritamente
-          confidenciais e visíveis apenas para você.
+          <b>Privacidade Garantida:</b> Seus dados pessoais e documentos de login são
+          criptografados, estritamente confidenciais e visíveis apenas para você.
         </p>
       </div>
     </div>
@@ -52,7 +65,9 @@ function GoogleButton() {
     setLoading(false);
     if (error) {
       if (error.message?.toLowerCase().includes("provider is not enabled")) {
-        toast.error("O login com Google precisa ser ativado no painel do Supabase (Authentication > Providers > Google).");
+        toast.error(
+          "O login com Google precisa ser ativado no painel do Supabase (Authentication > Providers > Google).",
+        );
       } else {
         toast.error("Erro ao autenticar com o Google: " + error.message);
       }
@@ -104,7 +119,10 @@ function Login() {
         e.preventDefault();
         setBusy(true);
         setUnconfirmedEmail(null);
-        const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
         setBusy(false);
         if (error) {
           const msg = (error.message || "").toLowerCase();
@@ -122,14 +140,24 @@ function Login() {
         }
       }}
     >
-      <Field label="E-mail"><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
-      <Field label="Senha"><Input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} /></Field>
+      <Field label="E-mail">
+        <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+      </Field>
+      <Field label="Senha">
+        <Input
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </Field>
 
       {unconfirmedEmail && (
         <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
           <p className="font-semibold">⚠️ E-mail pendente de confirmação</p>
           <p className="mt-1 text-xs">
-            Para acessar sua conta com segurança, clique no link de ativação que foi enviado para <b>{unconfirmedEmail}</b>.
+            Para acessar sua conta com segurança, clique no link de ativação que foi enviado para{" "}
+            <b>{unconfirmedEmail}</b>.
           </p>
           <Button
             type="button"
@@ -159,14 +187,18 @@ function Login() {
         className="text-sm italic text-primary underline"
         onClick={async () => {
           if (!email) return toast.error("Digite seu e-mail acima primeiro.");
-          const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${window.location.origin}/reset-password` });
+          const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+            redirectTo: `${window.location.origin}/reset-password`,
+          });
           if (error) toast.error("Erro ao enviar: " + error.message);
           else toast.success("Enviamos um link para redefinir sua senha.");
         }}
       >
         Esqueci minha senha
       </button>
-      <Button type="submit" className="w-full" disabled={busy}>{busy ? "Entrando..." : "Entrar"}</Button>
+      <Button type="submit" className="w-full" disabled={busy}>
+        {busy ? "Entrando..." : "Entrar"}
+      </Button>
       <GoogleButton />
     </form>
   );
@@ -174,17 +206,32 @@ function Login() {
 
 function Register() {
   const [kind, setKind] = useState<Kind | null>(null);
-  const [f, setF] = useState({ name: "", email: "", password: "", phone: "", cep: "", cpf: "", cnpj: "", social_link: "" });
+  const [f, setF] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    cep: "",
+    cpf: "",
+    cnpj: "",
+    social_link: "",
+  });
+  const [termsAgreed, setTermsAgreed] = useState(false);
+  const [marketingAgreed, setMarketingAgreed] = useState(false);
   const [cepMsg, setCepMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setF({ ...f, [k]: e.target.value });
 
   if (done)
     return (
       <div className="space-y-2 py-6 text-center">
         <p className="text-xl italic text-primary">Quase lá!</p>
-        <p>Enviamos um link de confirmação para <b>{f.email}</b>. Depois de confirmar, entre e complete seu perfil com o censo e o comprovante.</p>
+        <p>
+          Enviamos um link de confirmação para <b>{f.email}</b>. Depois de confirmar, entre e
+          complete seu perfil com o censo e o comprovante.
+        </p>
       </div>
     );
 
@@ -192,12 +239,18 @@ function Register() {
     return (
       <div className="space-y-3 pt-2">
         <p className="text-center">Como você quer participar?</p>
-        {([
-          ["adotante", "Sou Adotante", Heart],
-          ["ong", "Sou uma ONG", Building2],
-          ["protetor", "Sou Protetor Independente", HandHeart],
-        ] as const).map(([k, label, Icon]) => (
-          <button key={k} onClick={() => setKind(k)} className="flex w-full items-center gap-4 rounded-lg border-2 border-secondary bg-secondary/40 p-4 text-left text-lg hover:bg-secondary">
+        {(
+          [
+            ["adotante", "Sou Adotante", Heart],
+            ["ong", "Sou uma ONG", Building2],
+            ["protetor", "Sou Protetor Independente", HandHeart],
+          ] as const
+        ).map(([k, label, Icon]) => (
+          <button
+            key={k}
+            onClick={() => setKind(k)}
+            className="flex w-full items-center gap-4 rounded-lg border-2 border-secondary bg-secondary/40 p-4 text-left text-lg hover:bg-secondary"
+          >
             <Icon className="h-7 w-7 text-primary" /> {label}
           </button>
         ))}
@@ -209,6 +262,12 @@ function Register() {
     e.preventDefault();
     if (f.password.length < 6) return toast.error("A senha precisa de pelo menos 6 caracteres.");
     if (onlyDigits(f.phone).length < 10) return toast.error("WhatsApp inválido.");
+    if (!termsAgreed) {
+      return toast.error(
+        "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar uma conta.",
+      );
+    }
+
     let address: string | undefined;
     if (kind === "adotante") {
       const r = await lookupCep(f.cep);
@@ -218,16 +277,56 @@ function Register() {
     if (kind === "protetor" && !isValidCPF(f.cpf)) return toast.error("CPF inválido.");
     if (kind === "ong" && !isValidCNPJ(f.cnpj)) return toast.error("CNPJ inválido.");
     setBusy(true);
+
     const { data: signUpData, error } = await supabase.auth.signUp({
       email: f.email.trim(),
       password: f.password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { profile_type: kind, name: f.name.trim(), phone: f.phone, cep: f.cep, cpf: f.cpf || null, cnpj: f.cnpj || null, social_link: f.social_link || null, address },
+        data: {
+          profile_type: kind,
+          name: f.name.trim(),
+          phone: f.phone,
+          cep: f.cep,
+          cpf: f.cpf || null,
+          cnpj: f.cnpj || null,
+          social_link: f.social_link || null,
+          address,
+        },
       },
     });
     setBusy(false);
+
     if (error) return toast.error(error.message);
+
+    // Registra consentimento do titular no ConsentLog (LGPD Art. 7º, I)
+    const newUserId = signUpData?.user?.id;
+    if (newUserId) {
+      await recordConsent({
+        userId: newUserId,
+        consentType: "termos_de_uso",
+        version: "1.0",
+        status: "granted",
+        metadata: { form: "signup", profile_type: kind },
+      });
+      await recordConsent({
+        userId: newUserId,
+        consentType: "politica_privacidade",
+        version: "1.0",
+        status: "granted",
+        metadata: { form: "signup", profile_type: kind },
+      });
+      if (marketingAgreed) {
+        await recordConsent({
+          userId: newUserId,
+          consentType: "comunicacao_marketing",
+          version: "1.0",
+          status: "granted",
+          metadata: { form: "signup", channel: "email_whatsapp" },
+        });
+      }
+    }
+
     if (signUpData?.session) {
       toast.success("Conta criada e login realizado com sucesso!");
       return;
@@ -236,36 +335,144 @@ function Register() {
   };
 
   return (
-    <form className="space-y-3 pt-2" onSubmit={submit}>
-      <button type="button" onClick={() => setKind(null)} className="text-sm italic text-primary underline">← trocar tipo de perfil</button>
-      <Field label={kind === "ong" ? "Razão Social / Nome Fantasia" : kind === "protetor" ? "Nome Completo" : "Nome"}>
+    <form className="space-y-3.5 pt-2" onSubmit={submit}>
+      <button
+        type="button"
+        onClick={() => setKind(null)}
+        className="text-sm italic text-primary underline"
+      >
+        ← trocar tipo de perfil
+      </button>
+      <Field
+        label={
+          kind === "ong"
+            ? "Razão Social / Nome Fantasia"
+            : kind === "protetor"
+              ? "Nome Completo"
+              : "Nome"
+        }
+      >
         <Input required value={f.name} onChange={set("name")} />
       </Field>
-      {kind === "ong" && <Field label="CNPJ"><Input required value={f.cnpj} onChange={(e) => setF({ ...f, cnpj: maskCNPJ(e.target.value) })} /></Field>}
-      {kind === "protetor" && <Field label="CPF"><Input required value={f.cpf} onChange={(e) => setF({ ...f, cpf: maskCPF(e.target.value) })} /></Field>}
-      <Field label="E-mail"><Input type="email" required value={f.email} onChange={set("email")} /></Field>
-      <Field label="Senha"><Input type="password" required value={f.password} onChange={set("password")} /></Field>
+      {kind === "ong" && (
+        <Field label="CNPJ">
+          <Input
+            required
+            value={f.cnpj}
+            onChange={(e) => setF({ ...f, cnpj: maskCNPJ(e.target.value) })}
+          />
+        </Field>
+      )}
+      {kind === "protetor" && (
+        <Field label="CPF">
+          <Input
+            required
+            value={f.cpf}
+            onChange={(e) => setF({ ...f, cpf: maskCPF(e.target.value) })}
+          />
+        </Field>
+      )}
+      <Field label="E-mail">
+        <Input type="email" required value={f.email} onChange={set("email")} />
+      </Field>
+      <Field label="Senha">
+        <Input type="password" required value={f.password} onChange={set("password")} />
+      </Field>
       <Field label={kind === "ong" ? "WhatsApp da instituição" : "WhatsApp"}>
-        <Input required value={f.phone} onChange={(e) => setF({ ...f, phone: maskPhone(e.target.value) })} />
+        <Input
+          required
+          value={f.phone}
+          onChange={(e) => setF({ ...f, phone: maskPhone(e.target.value) })}
+        />
       </Field>
       {kind === "adotante" && (
         <>
           <Field label="CEP" hint={cepMsg ?? "Apenas DF e entorno"}>
-            <Input required value={f.cep} onChange={(e) => { setCepMsg(null); setF({ ...f, cep: maskCEP(e.target.value) }); }} />
+            <Input
+              required
+              value={f.cep}
+              onChange={(e) => {
+                setCepMsg(null);
+                setF({ ...f, cep: maskCEP(e.target.value) });
+              }}
+            />
           </Field>
           <div className="rounded-lg border-2 border-dashed border-secondary bg-secondary/20 p-3 text-sm">
-            <b>Comprovante de Residência:</b> após confirmar seu e-mail, envie o arquivo em <i>Editar Meu Perfil</i> junto com o censo de adoção.
+            <b>Comprovante de Residência:</b> após confirmar seu e-mail, envie o arquivo em{" "}
+            <i>Editar Meu Perfil</i> junto com o censo de adoção.
           </div>
         </>
       )}
-      {kind === "ong" && <Field label="Link do Instagram/Site"><Input required value={f.social_link} onChange={set("social_link")} /></Field>}
-      {kind === "protetor" && <Field label="Link de Rede Social com histórico de resgates"><Input required value={f.social_link} onChange={set("social_link")} /></Field>}
-      <Button type="submit" className="w-full" disabled={busy}>Criar conta</Button>
+      {kind === "ong" && (
+        <Field label="Link do Instagram/Site">
+          <Input required value={f.social_link} onChange={set("social_link")} />
+        </Field>
+      )}
+      {kind === "protetor" && (
+        <Field label="Link de Rede Social com histórico de resgates">
+          <Input required value={f.social_link} onChange={set("social_link")} />
+        </Field>
+      )}
+
+      {/* Checkboxes de Consentimento LGPD (Desmarcados por padrão - Privacy by Default) */}
+      <div className="space-y-2.5 pt-2 border-t border-primary/20">
+        <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-accent/30 p-2.5">
+          <Checkbox
+            id="terms-consent"
+            checked={termsAgreed}
+            onCheckedChange={(checked) => setTermsAgreed(!!checked)}
+            className="mt-0.5"
+          />
+          <label
+            htmlFor="terms-consent"
+            className="text-xs text-foreground cursor-pointer leading-tight select-none"
+          >
+            Li e concordo com os <b>Termos de Uso</b> e a{" "}
+            <a
+              href="/privacidade"
+              target="_blank"
+              rel="noreferrer"
+              className="underline font-bold text-primary hover:text-primary/80"
+            >
+              Política de Privacidade
+            </a>{" "}
+            (Tratamento conforme Lei nº 13.709/2018 - LGPD) *
+          </label>
+        </div>
+
+        <div className="flex items-start gap-2.5 rounded-lg border border-primary/10 bg-card p-2.5">
+          <Checkbox
+            id="marketing-consent"
+            checked={marketingAgreed}
+            onCheckedChange={(checked) => setMarketingAgreed(!!checked)}
+            className="mt-0.5"
+          />
+          <label
+            htmlFor="marketing-consent"
+            className="text-xs text-muted-foreground cursor-pointer leading-tight select-none"
+          >
+            (Opcional) Desejo receber avisos sobre vaquinhas de cirurgias emergenciais e novos
+            animais para adoção.
+          </label>
+        </div>
+      </div>
+
+      <Button type="submit" className="w-full font-bold" disabled={busy}>
+        {busy ? "Criando conta..." : "Criar conta"}
+      </Button>
     </form>
   );
 }
 
-export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+export function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1">
       <Label>{label}</Label>

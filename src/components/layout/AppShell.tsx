@@ -1,6 +1,15 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { User, MessageCircle, Bell, Shield, LifeBuoy, LogOut, Lock, ListChecks } from "lucide-react";
+import {
+  User,
+  MessageCircle,
+  Bell,
+  Shield,
+  LifeBuoy,
+  LogOut,
+  Lock,
+  ListChecks,
+} from "lucide-react";
 import { FloatingHeader, NavLinks } from "@/components/layout/FloatingHeader";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -24,14 +33,21 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [menuOpen, pathname]);
 
   const [fontStep, setFontStep] = useState(0);
-  useEffect(() => { setFontStep(Number(localStorage.getItem("font-step") ?? 0)); }, []);
+  useEffect(() => {
+    setFontStep(Number(localStorage.getItem("font-step") ?? 0));
+  }, []);
   useEffect(() => {
     document.documentElement.style.fontSize = `${100 + fontStep * 12.5}%`;
     localStorage.setItem("font-step", String(fontStep));
   }, [fontStep]);
   const changeFont = (d: number) => setFontStep((s) => Math.max(-1, Math.min(3, s + d)));
 
-  const draftTarget = draftKey === "draft:census" ? "/perfil" : draftKey === "draft:campaign" ? "/admin" : "/meus-pets";
+  const draftTarget =
+    draftKey === "draft:census"
+      ? "/perfil"
+      : draftKey === "draft:campaign"
+        ? "/admin"
+        : "/meus-pets";
 
   const items: { to: string; label: string; icon: typeof User; show?: boolean }[] = [
     { to: "/perfil", label: "Editar Meu Perfil", icon: User },
@@ -54,16 +70,23 @@ export function AppShell({ children }: { children: ReactNode }) {
         onFont={changeFont}
       />
 
-      <main className={fullBleedChat ? "flex-1" : "mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-6 md:pb-12"}>
+      <main
+        className={
+          fullBleedChat ? "flex-1" : "mx-auto w-full max-w-6xl flex-1 px-4 pb-28 pt-6 md:pb-12"
+        }
+      >
         {children}
       </main>
 
       {!fullBleedChat && (
         <footer className="bg-primary px-4 pb-24 pt-8 text-center text-sm text-primary-foreground md:pb-8">
-          <p>Brasília - DF | Somos uma plataforma 100% digital e independente, não possuímos sede física.</p>
+          <p>
+            Brasília - DF | Somos uma plataforma 100% digital e independente, não possuímos sede
+            física.
+          </p>
           <p className="mt-2 opacity-90">
-            Desenvolvido por: Letícia da Silva Lima, Letícia Krixi de Souza, Maíra Gomes Rodrigues, Sophia Abarno Lemos e
-            Vitória Santana Barbosa.
+            Desenvolvido por: Letícia da Silva Lima, Letícia Krixi de Souza, Maíra Gomes Rodrigues,
+            Sophia Abarno Lemos e Vitória Santana Barbosa.
           </p>
         </footer>
       )}
@@ -77,7 +100,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       )}
 
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="right" className="w-80 border-l-2 border-primary/40 bg-accent p-0 text-accent-foreground">
+        <SheetContent
+          side="right"
+          className="w-80 border-l-2 border-primary/40 bg-accent p-0 text-accent-foreground"
+        >
           <SheetTitle className="px-6 pb-2 pt-6 text-xl italic text-primary">Menu</SheetTitle>
           {user && (
             <div className="border-b border-primary/25 bg-card/40 px-6 py-3">
@@ -97,31 +123,52 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Button size="sm" asChild onClick={() => setMenuOpen(false)}>
                   <Link to={draftTarget}>Continuar</Link>
                 </Button>
-                <Button size="sm" variant="ghost" onClick={() => { clearDraft(draftKey); setDraftKey(null); }}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    clearDraft(draftKey);
+                    setDraftKey(null);
+                  }}
+                >
                   Descartar
                 </Button>
               </div>
             </div>
           )}
           <ul className="divide-y divide-primary/25 border-y border-primary/25">
-            {items.filter((i) => i.show !== false).map((i) => (
-              <li key={i.to}>
-                <Link
-                  to={i.to}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-6 py-3.5 hover:bg-card/60"
-                >
-                  <i.icon className="h-5 w-5 text-primary" /> {i.label}
-                </Link>
-              </li>
-            ))}
+            {items
+              .filter((i) => i.show !== false)
+              .map((i) => (
+                <li key={i.to}>
+                  <Link
+                    to={i.to}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-3 px-6 py-3.5 hover:bg-card/60"
+                  >
+                    <i.icon className="h-5 w-5 text-primary" /> {i.label}
+                  </Link>
+                </li>
+              ))}
             <li>
               {user ? (
-                <button onClick={() => { setMenuOpen(false); signOut(); }} className="flex w-full items-center gap-3 px-6 py-3.5 hover:bg-card/60">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    signOut();
+                  }}
+                  className="flex w-full items-center gap-3 px-6 py-3.5 hover:bg-card/60"
+                >
                   <LogOut className="h-5 w-5 text-primary" /> Sair
                 </button>
               ) : (
-                <button onClick={() => { setMenuOpen(false); setAuthOpen(true); }} className="flex w-full items-center gap-3 px-6 py-3.5 hover:bg-card/60">
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setAuthOpen(true);
+                  }}
+                  className="flex w-full items-center gap-3 px-6 py-3.5 hover:bg-card/60"
+                >
                   <User className="h-5 w-5 text-primary" /> Entrar / Cadastrar
                 </button>
               )}
@@ -132,11 +179,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <Dialog open={authOpen} onOpenChange={setAuthOpen}>
         <DialogContent className="max-h-[92vh] overflow-y-auto">
-          <DialogTitle className="text-2xl italic text-primary">Bem-vindo ao Carita's Pets</DialogTitle>
+          <DialogTitle className="text-2xl italic text-primary">
+            Bem-vindo ao Carita's Pets
+          </DialogTitle>
           <AuthForms />
         </DialogContent>
       </Dialog>
     </div>
   );
 }
-

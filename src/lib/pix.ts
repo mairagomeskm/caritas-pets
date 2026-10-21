@@ -1,17 +1,28 @@
 const f = (id: string, v: string) => id + String(v.length).padStart(2, "0") + v;
-const ascii = (s: string) => s.normalize("NFD").replace(/[^\x20-\x7E]/g, "").replace(/[^A-Za-z0-9 ]/g, "");
+const ascii = (s: string) =>
+  s
+    .normalize("NFD")
+    .replace(/[^\x20-\x7E]/g, "")
+    .replace(/[^A-Za-z0-9 ]/g, "");
 
 function crc16(p: string) {
   let crc = 0xffff;
   for (let i = 0; i < p.length; i++) {
     crc ^= p.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
+    for (let j = 0; j < 8; j++)
+      crc = crc & 0x8000 ? ((crc << 1) ^ 0x1021) & 0xffff : (crc << 1) & 0xffff;
   }
   return crc.toString(16).toUpperCase().padStart(4, "0");
 }
 
 /** Gera o código PIX "copia e cola" (BR Code estático). */
-export function pixPayload(o: { key: string; name: string; city?: string; amount?: number | undefined; txid?: string }) {
+export function pixPayload(o: {
+  key: string;
+  name: string;
+  city?: string;
+  amount?: number | undefined;
+  txid?: string;
+}) {
   const gui = f("00", "br.gov.bcb.pix") + f("01", o.key.trim());
   let p =
     f("00", "01") +

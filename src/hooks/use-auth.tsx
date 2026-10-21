@@ -55,7 +55,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthCtx.Provider value={{ user, loading, isAdmin: !!user && isAdmin, authOpen, setAuthOpen, signOut }}>
+    <AuthCtx.Provider
+      value={{ user, loading, isAdmin: !!user && isAdmin, authOpen, setAuthOpen, signOut }}
+    >
       {children}
     </AuthCtx.Provider>
   );

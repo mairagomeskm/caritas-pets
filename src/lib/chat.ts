@@ -11,9 +11,13 @@ export async function openPetChat(userId: string, petId: string, petName: string
     .maybeSingle();
   if (existing) return existing.id;
   const id = crypto.randomUUID();
-  const { error } = await supabase
-    .from("conversations")
-    .insert({ id, kind: "pet", pet_id: petId, adopter_id: userId, title: `Interesse em ${petName}` });
+  const { error } = await supabase.from("conversations").insert({
+    id,
+    kind: "pet",
+    pet_id: petId,
+    adopter_id: userId,
+    title: `Interesse em ${petName}`,
+  });
   if (error) throw error;
   return id;
 }

@@ -1,4 +1,5 @@
 ## Carita's Pets architecture
+
 - Data access uses the browser Supabase client with RLS (no server functions yet) — simplest path; RLS is the security boundary.
 - Signed-in pages live under src/routes/_authenticated/ — managed gate redirects to /auth.
 - Public storage buckets are blocked in this workspace: public photos go to private bucket `media` with long-lived signed URLs stored in the row; chat files and residence proofs use private buckets read via short signed URLs.

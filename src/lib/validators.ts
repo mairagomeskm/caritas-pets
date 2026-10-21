@@ -16,7 +16,8 @@ export function isValidCNPJ(raw: string) {
   const c = onlyDigits(raw);
   if (c.length !== 14 || /^(\d)\1+$/.test(c)) return false;
   const calc = (len: number) => {
-    const w = len === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    const w =
+      len === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
     const s = w.reduce((a, wi, i) => a + wi * Number(c[i]), 0);
     const r = s % 11;
     return r < 2 ? 0 : 11 - r;
@@ -34,18 +35,33 @@ export async function lookupCep(raw: string): Promise<CepResult> {
     const r = await fetch(`https://viacep.com.br/ws/${c}/json/`);
     const d = await r.json();
     if (d.erro) return { ok: false, error: "CEP não encontrado." };
-    if (d.uf !== "DF" && d.uf !== "GO") return { ok: false, error: "Atendemos apenas DF e entorno." };
-    return { ok: true, uf: d.uf, address: [d.logradouro, d.bairro, `${d.localidade}/${d.uf}`].filter(Boolean).join(", ") };
+    if (d.uf !== "DF" && d.uf !== "GO")
+      return { ok: false, error: "Atendemos apenas DF e entorno." };
+    return {
+      ok: true,
+      uf: d.uf,
+      address: [d.logradouro, d.bairro, `${d.localidade}/${d.uf}`].filter(Boolean).join(", "),
+    };
   } catch {
     return { ok: false, error: "Não foi possível consultar o CEP agora." };
   }
 }
 
 export const maskCPF = (v: string) =>
-  onlyDigits(v).slice(0, 11).replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-export const maskCEP = (v: string) => onlyDigits(v).slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
+  onlyDigits(v)
+    .slice(0, 11)
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+export const maskCEP = (v: string) =>
+  onlyDigits(v)
+    .slice(0, 8)
+    .replace(/(\d{5})(\d)/, "$1-$2");
 export const maskPhone = (v: string) =>
-  onlyDigits(v).slice(0, 11).replace(/(\d{2})(\d)/, "($1) $2").replace(/(\d{5})(\d{1,4})$/, "$1-$2");
+  onlyDigits(v)
+    .slice(0, 11)
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d{1,4})$/, "$1-$2");
 export const maskCNPJ = (v: string) =>
   onlyDigits(v)
     .slice(0, 14)
