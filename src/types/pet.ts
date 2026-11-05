@@ -52,4 +52,3 @@ export interface MissingPet {
   reward?: string;
   created_at?: string;
 }
-

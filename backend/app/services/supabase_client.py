@@ -4,8 +4,8 @@ from backend.app.config import settings
 
 class SupabaseClient:
     def __init__(self) -> None:
-        self.base_url = settings.supabase_url.rstrip("/")
-        self.key = settings.supabase_service_key or settings.supabase_key
+        self.base_url = (settings.supabase_url or "").rstrip("/")
+        self.key = settings.supabase_service_key or settings.supabase_key or ""
 
     def _headers(self, auth_token: Optional[str] = None) -> Dict[str, str]:
         token = auth_token or self.key

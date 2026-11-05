@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "postbuild": "node -e \"const fs = require('fs'); const copySync = (src, dst) => { if(fs.existsSync(src)) { fs.mkdirSync(dst, {recursive: true}); fs.cpSync(src, dst, {recursive: true}); } }; if (fs.existsSync('.output/public')) { copySync('.output/public', 'dist'); } fs.copyFileSync('index.html', 'dist/index.html'); if(fs.existsSync('.output/public')) fs.copyFileSync('index.html', '.output/public/index.html'); if(fs.existsSync('.vercel/output/static')) fs.copyFileSync('index.html', '.vercel/output/static/index.html');\"",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",

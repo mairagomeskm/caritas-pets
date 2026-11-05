@@ -66,4 +66,3 @@ export const INITIAL_MISSING_PETS: MissingPet[] = [
     created_at: "2026-11-01T21:00:00Z",
   },
 ];
-

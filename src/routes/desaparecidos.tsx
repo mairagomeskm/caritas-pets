@@ -133,7 +133,8 @@ export function DesaparecidosPage() {
             return {
               id: item.id || `remote-${item.name}-${Math.random()}`,
               name: item.name,
-              species: item.species || (rawDesc.toLowerCase().includes("gato") ? "Gato" : "Cachorro"),
+              species:
+                item.species || (rawDesc.toLowerCase().includes("gato") ? "Gato" : "Cachorro"),
               sex_age: item.sex_age || "Idade não informada",
               region: item.region || item.location || "Distrito Federal",
               location: item.location || "Brasília/DF",
@@ -200,7 +201,12 @@ export function DesaparecidosPage() {
         if (!s.includes("gato") && !s.includes("felino")) return false;
       } else if (selectedSpecies === "Cachorros") {
         const s = (pet.species || "").toLowerCase();
-        if (!s.includes("cachorro") && !s.includes("cão") && !s.includes("cao") && !s.includes("canino")) {
+        if (
+          !s.includes("cachorro") &&
+          !s.includes("cão") &&
+          !s.includes("cao") &&
+          !s.includes("canino")
+        ) {
           return false;
         }
       }
@@ -284,7 +290,8 @@ export function DesaparecidosPage() {
     }
 
     setIsSubmitting(true);
-    const finalRegion = region === "Outra região" ? customRegion.trim() || "Distrito Federal" : region;
+    const finalRegion =
+      region === "Outra região" ? customRegion.trim() || "Distrito Federal" : region;
 
     try {
       let finalPhotoUrl = "/assets/img/bento.jpg";
@@ -372,7 +379,9 @@ export function DesaparecidosPage() {
   };
 
   const hasActiveFilters =
-    selectedSpecies !== "Todos" || selectedRegion !== "Todas as regiões" || searchTerm.trim() !== "";
+    selectedSpecies !== "Todos" ||
+    selectedRegion !== "Todas as regiões" ||
+    searchTerm.trim() !== "";
 
   return (
     <div className="space-y-8 pb-16">
@@ -553,10 +562,15 @@ export function DesaparecidosPage() {
                           target.dataset.fallback = "1";
                           // Fallback em cascata para pets da pasta pública ou unsplash seguro
                           if (pet.photo_url.includes("bento")) target.src = "/assets/img/bento.jpg";
-                          else if (pet.photo_url.includes("apolo")) target.src = "/assets/img/apolo.jpg";
-                          else if (pet.photo_url.includes("mel")) target.src = "/assets/img/mel.jpg";
-                          else if (pet.photo_url.includes("avela")) target.src = "/assets/img/avela.jpg";
-                          else target.src = "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&q=80";
+                          else if (pet.photo_url.includes("apolo"))
+                            target.src = "/assets/img/apolo.jpg";
+                          else if (pet.photo_url.includes("mel"))
+                            target.src = "/assets/img/mel.jpg";
+                          else if (pet.photo_url.includes("avela"))
+                            target.src = "/assets/img/avela.jpg";
+                          else
+                            target.src =
+                              "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800&q=80";
                         }
                       }}
                     />
@@ -613,7 +627,9 @@ export function DesaparecidosPage() {
                     {/* Contato do Tutor */}
                     <div className="border-t border-primary/15 pt-3">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground font-semibold">Tutor responsável:</span>
+                        <span className="text-muted-foreground font-semibold">
+                          Tutor responsável:
+                        </span>
                         <strong className="text-foreground text-sm font-bold">{pet.contact}</strong>
                       </div>
                     </div>
@@ -684,21 +700,30 @@ export function DesaparecidosPage() {
 
         <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed">
           <div className="rounded-xl bg-card p-4 border border-primary/15 shadow-2xs space-y-1">
-            <strong className="block text-foreground text-sm font-bold">1. Ação nas primeiras horas</strong>
+            <strong className="block text-foreground text-sm font-bold">
+              1. Ação nas primeiras horas
+            </strong>
             <p className="text-muted-foreground">
-              Espalhe o cartaz em grupos de WhatsApp dos blocos, comércios locais e praças da região.
+              Espalhe o cartaz em grupos de WhatsApp dos blocos, comércios locais e praças da
+              região.
             </p>
           </div>
           <div className="rounded-xl bg-card p-4 border border-primary/15 shadow-2xs space-y-1">
-            <strong className="block text-foreground text-sm font-bold">2. Clínicas e Zoonoses</strong>
+            <strong className="block text-foreground text-sm font-bold">
+              2. Clínicas e Zoonoses
+            </strong>
             <p className="text-muted-foreground">
-              Ligue para veterinárias 24h e postos da região. Animais recolhidos costumam ser levados para checagem.
+              Ligue para veterinárias 24h e postos da região. Animais recolhidos costumam ser
+              levados para checagem.
             </p>
           </div>
           <div className="rounded-xl bg-card p-4 border border-primary/15 shadow-2xs space-y-1">
-            <strong className="block text-foreground text-sm font-bold">3. Reconhecimento Olfativo</strong>
+            <strong className="block text-foreground text-sm font-bold">
+              3. Reconhecimento Olfativo
+            </strong>
             <p className="text-muted-foreground">
-              Deixe peças de roupa com cheiro do tutor e a caminha na entrada da residência ou portaria.
+              Deixe peças de roupa com cheiro do tutor e a caminha na entrada da residência ou
+              portaria.
             </p>
           </div>
         </div>
@@ -712,7 +737,8 @@ export function DesaparecidosPage() {
               <AlertTriangle className="h-6 w-6" /> Registrar Desaparecimento
             </DialogTitle>
             <DialogDescription>
-              Preencha as informações do pet para divulgar na rede Carita's Pets DF e alertar a comunidade.
+              Preencha as informações do pet para divulgar na rede Carita's Pets DF e alertar a
+              comunidade.
             </DialogDescription>
           </DialogHeader>
 
@@ -786,7 +812,9 @@ export function DesaparecidosPage() {
 
             {region === "Outra região" && (
               <div>
-                <label className="text-xs font-bold text-foreground">Especifique a Região / Bairro</label>
+                <label className="text-xs font-bold text-foreground">
+                  Especifique a Região / Bairro
+                </label>
                 <Input
                   placeholder="Ex: Samambaia, Sobradinho, Planaltina..."
                   value={customRegion}
@@ -798,7 +826,9 @@ export function DesaparecidosPage() {
 
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="text-xs font-bold text-foreground">Local Exato do Desaparecimento *</label>
+                <label className="text-xs font-bold text-foreground">
+                  Local Exato do Desaparecimento *
+                </label>
                 <Input
                   required
                   placeholder="Ex: Perto da Quadra 1205 (Brasília/DF)"
@@ -809,7 +839,9 @@ export function DesaparecidosPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-foreground">Data / Hora Visto pela Última Vez *</label>
+                <label className="text-xs font-bold text-foreground">
+                  Data / Hora Visto pela Última Vez *
+                </label>
                 <Input
                   required
                   placeholder="Ex: 05/11/2026, às 16h30"
@@ -821,7 +853,9 @@ export function DesaparecidosPage() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-foreground">Características e Descrição do Animal</label>
+              <label className="text-xs font-bold text-foreground">
+                Características e Descrição do Animal
+              </label>
               <Textarea
                 rows={3}
                 placeholder="Ex: Pelagem frajola, coleira azul, dócil mas assustado com barulho de moto..."
@@ -843,7 +877,9 @@ export function DesaparecidosPage() {
               </div>
 
               <div>
-                <label className="text-xs font-bold text-foreground">WhatsApp / Telefone com DDD *</label>
+                <label className="text-xs font-bold text-foreground">
+                  WhatsApp / Telefone com DDD *
+                </label>
                 <Input
                   required
                   placeholder="Ex: (61) 99812-0041"

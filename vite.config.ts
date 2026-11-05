@@ -1,11 +1,10 @@
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
-import { nitro } from "nitro/vite";
 
-export default defineConfig(({ command }) => ({
+export default defineConfig({
   server: {
     port: 8080,
     host: true,
@@ -14,10 +13,10 @@ export default defineConfig(({ command }) => ({
   plugins: [
     tailwindcss(),
     tsConfigPaths({ projects: ["./tsconfig.json"] }),
-    tanstackStart({
-      server: { entry: "server" },
-    }),
+    tanstackRouter({ autoCodeSplitting: true }),
     viteReact(),
-    command === "build" ? nitro() : undefined,
-  ].filter(Boolean),
-}));
+  ],
+  build: {
+    outDir: "dist",
+  },
+});

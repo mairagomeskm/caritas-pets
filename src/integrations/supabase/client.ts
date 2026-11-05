@@ -27,28 +27,32 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+function getEnvVar(key: string): string {
+  if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env[key]) {
+    return import.meta.env[key];
+  }
+  if (typeof process !== "undefined" && process.env && process.env[key]) {
+    return process.env[key];
+  }
+  return "";
+}
+
 function createSupabaseClient() {
-  const supabaseUrl =
-    import.meta.env["VITE_SUPABASE_URL"] ||
-    process.env["VITE_SUPABASE_URL"] ||
-    process.env["SUPABASE_URL"];
+  const supabaseUrl = getEnvVar("VITE_SUPABASE_URL") || getEnvVar("SUPABASE_URL");
 
   const supabasePublishableKey =
-    import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-    import.meta.env["VITE_SUPABASE_ANON_KEY"] ||
-    process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-    process.env["VITE_SUPABASE_ANON_KEY"] ||
-    process.env["SUPABASE_PUBLISHABLE_KEY"] ||
-    process.env["SUPABASE_ANON_KEY"];
+    getEnvVar("VITE_SUPABASE_PUBLISHABLE_KEY") ||
+    getEnvVar("VITE_SUPABASE_ANON_KEY") ||
+    getEnvVar("SUPABASE_PUBLISHABLE_KEY") ||
+    getEnvVar("SUPABASE_ANON_KEY");
 
   if (!supabaseUrl || !supabasePublishableKey) {
-    const missing = [
-      ...(!supabaseUrl ? ["SUPABASE_URL / VITE_SUPABASE_URL"] : []),
-      ...(!supabasePublishableKey ? ["SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_ANON_KEY"] : []),
-    ];
-    throw new Error(
-      `Variáveis de ambiente do Supabase não encontradas: ${missing.join(", ")}. Verifique o arquivo .env`,
+    console.warn(
+      "Aviso: Variaveis de ambiente do Supabase nao configuradas (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).",
     );
+    return createClient<Database>("https://placeholder.supabase.co", "placeholder-anon-key", {
+      auth: { persistSession: false },
+    });
   }
 
   return createClient<Database>(supabaseUrl, supabasePublishableKey, {
