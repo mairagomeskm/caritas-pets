@@ -1,12 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
+import type { Pet } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
-import { VERIFIED_REAL_PETS } from "@/routes/adocao";
+import { VERIFIED_REAL_PETS } from "@/data";
+import { INITIAL_MISSING_PETS } from "@/data/missing";
 import {
   Search,
-  MessageCircle,
   HeartHandshake,
   ShieldCheck,
   Home,
@@ -16,7 +16,6 @@ import {
   MapPin,
   ArrowRight,
   AlertTriangle,
-  Users,
   CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -69,7 +68,6 @@ const URGENT_CAMPAIGNS = [
 ];
 
 function Index() {
-  const { user, setAuthOpen } = useAuth();
   const navigate = useNavigate();
 
   const { data: realPets = [] } = useQuery({
@@ -88,19 +86,29 @@ function Index() {
   const { data: dbMissing = [] } = useQuery({
     queryKey: ["home-missing"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("missing_pets")
-        .select("id, name, location, photo_url")
-        .order("created_at", { ascending: false })
-        .limit(2);
-      if (error) return [];
-      return data || [];
+      try {
+        const { data, error } = await supabase
+          .from("missing_pets")
+          .select("id, name, location, photo_url")
+          .order("created_at", { ascending: false })
+          .limit(3);
+        if (error || !data || data.length === 0) {
+          return INITIAL_MISSING_PETS.slice(0, 3);
+        }
+        const filtered = data.filter((d: any) => {
+          const n = (d.name || "").toLowerCase();
+          return n !== "caramelo" && n !== "nina";
+        });
+        return filtered.length > 0 ? filtered : INITIAL_MISSING_PETS.slice(0, 3);
+      } catch {
+        return INITIAL_MISSING_PETS.slice(0, 3);
+      }
     },
   });
 
   const displayPets = useMemo(() => {
-    const map = new Map<string, any>();
-    realPets.forEach((p: any) => map.set(p.id, p));
+    const map = new Map<string, Pet>();
+    realPets.forEach((p) => map.set(p.id, p as Pet));
     VERIFIED_REAL_PETS.forEach((p) => map.set(p.id, p));
     return Array.from(map.values()).slice(0, 12);
   }, [realPets]);

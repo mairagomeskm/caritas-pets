@@ -9,16 +9,38 @@ export interface RetentionJobResult {
   timestamp: string;
 }
 
-/**
- * Rotina automatizada de Ciclo de Vida e Retenção de Dados (LGPD Art. 16)
- * Localiza formulários e conversas de adoção recusadas ou abandonadas após 60 dias,
- * expurgando fotos da casa do candidato, comprovantes temporários e anexos da entrevista.
- */
 export async function runRetentionLifecycleJob(daysThreshold = 60): Promise<RetentionJobResult> {
   const timestamp = new Date().toISOString();
+
+  // 1. Tenta delegar para o serviço Python de retenção e ciclo de vida
   try {
-    // 1. Tenta executar via stored procedure no Supabase caso instalada
-    const { data, error } = await (supabase.rpc as any)("purge_abandoned_applications", {
+    const apiBase =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : "http://localhost:8000";
+    const res = await fetch(`${apiBase}/api/retention/run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ days_threshold: daysThreshold }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && typeof data.success === "boolean") {
+        return data as RetentionJobResult;
+      }
+    }
+  } catch {
+    // Continua para fallback direto caso a API externa não esteja no ar
+  }
+
+  try {
+    // 2. Executa via stored procedure no Supabase caso instalada
+    const { data, error } = await (
+      supabase.rpc as unknown as (
+        fn: string,
+        args: Record<string, unknown>,
+      ) => Promise<{ data: unknown; error: unknown }>
+    )("purge_abandoned_applications", {
       _days_threshold: daysThreshold,
     });
 
@@ -33,10 +55,9 @@ export async function runRetentionLifecycleJob(daysThreshold = 60): Promise<Rete
       };
     }
 
-    // 2. Fallback de aplicação caso o RPC não esteja acessível
+    // 3. Fallback de aplicação cliente
     const cutoffDate = new Date(Date.now() - daysThreshold * 24 * 60 * 60 * 1000).toISOString();
 
-    // Busca conversas inativas
     const { data: convs, error: convErr } = await supabase
       .from("conversations")
       .select("id")
@@ -51,7 +72,6 @@ export async function runRetentionLifecycleJob(daysThreshold = 60): Promise<Rete
     let purgedCount = 0;
 
     if (convIds.length > 0) {
-      // Remove anexos (fotos de quintal/moradia enviadas em triagens abandonadas)
       const { data: updatedMsgs, error: msgErr } = await supabase
         .from("messages")
         .update({
@@ -67,7 +87,6 @@ export async function runRetentionLifecycleJob(daysThreshold = 60): Promise<Rete
       }
     }
 
-    // Registra trilha de auditoria para fins de compliance DPO
     await logAuditAccess({
       actorRole: "retention_worker",
       action: "retention_cleanup_60d",
@@ -89,7 +108,6 @@ export async function runRetentionLifecycleJob(daysThreshold = 60): Promise<Rete
     };
   } catch (err: unknown) {
     const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("[DataRetention] Erro ao executar expurgo de dados:", errorMsg);
     return {
       success: false,
       purgedConversations: 0,

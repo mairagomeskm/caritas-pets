@@ -259,33 +259,99 @@ export type Database = {
           },
         ];
       };
-      missing_pets: {
+      memorial_pets: {
         Row: {
-          contact: string | null;
           created_at: string;
-          description: string | null;
+          guardian_name: string | null;
           id: string;
-          location: string;
+          is_pinned: boolean;
+          likes_count: number;
           name: string;
-          photo_url: string | null;
+          photo_url: string;
+          story: string;
+          tribute_period: string | null;
+          user_id: string | null;
         };
         Insert: {
-          contact?: string | null;
           created_at?: string;
-          description?: string | null;
+          guardian_name?: string | null;
           id?: string;
-          location: string;
+          is_pinned?: boolean;
+          likes_count?: number;
           name: string;
-          photo_url?: string | null;
+          photo_url?: string;
+          story: string;
+          tribute_period?: string | null;
+          user_id?: string | null;
         };
         Update: {
-          contact?: string | null;
+          created_at?: string;
+          guardian_name?: string | null;
+          id?: string;
+          is_pinned?: boolean;
+          likes_count?: number;
+          name?: string;
+          photo_url?: string;
+          story?: string;
+          tribute_period?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      missing_pets: {
+        Row: {
+          contact: string;
+          created_at: string;
+          description: string | null;
+          guardian_name: string | null;
+          id: string;
+          last_seen: string | null;
+          location: string;
+          name: string;
+          phone: string | null;
+          photo_url: string | null;
+          region: string;
+          reward: string | null;
+          sex_age: string | null;
+          species: string;
+          status: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          contact?: string;
           created_at?: string;
           description?: string | null;
+          guardian_name?: string | null;
           id?: string;
+          last_seen?: string | null;
+          location: string;
+          name: string;
+          phone?: string | null;
+          photo_url?: string | null;
+          region?: string;
+          reward?: string | null;
+          sex_age?: string | null;
+          species?: string;
+          status?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          contact?: string;
+          created_at?: string;
+          description?: string | null;
+          guardian_name?: string | null;
+          id?: string;
+          last_seen?: string | null;
           location?: string;
           name?: string;
+          phone?: string | null;
           photo_url?: string | null;
+          region?: string;
+          reward?: string | null;
+          sex_age?: string | null;
+          species?: string;
+          status?: string | null;
+          user_id?: string | null;
         };
         Relationships: [];
       };
@@ -500,6 +566,10 @@ export type Database = {
       purge_abandoned_applications: {
         Args: Record<PropertyKey, never>;
         Returns: Json;
+      };
+      increment_memorial_tribute: {
+        Args: { target_pet_id: string };
+        Returns: void;
       };
     };
     Enums: {

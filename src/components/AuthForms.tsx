@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { Heart, Building2, HandHeart, Lock, ShieldCheck } from "lucide-react";
+import { Heart, Building2, HandHeart, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,7 +119,7 @@ function Login() {
         e.preventDefault();
         setBusy(true);
         setUnconfirmedEmail(null);
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: email.trim(),
           password,
         });
@@ -299,7 +299,6 @@ function Register() {
 
     if (error) return toast.error(error.message);
 
-    // Registra consentimento do titular no ConsentLog (LGPD Art. 7º, I)
     const newUserId = signUpData?.user?.id;
     if (newUserId) {
       await recordConsent({
@@ -414,7 +413,6 @@ function Register() {
         </Field>
       )}
 
-      {/* Checkboxes de Consentimento LGPD (Desmarcados por padrão - Privacy by Default) */}
       <div className="space-y-2.5 pt-2 border-t border-primary/20">
         <div className="flex items-start gap-2.5 rounded-lg border border-primary/20 bg-accent/30 p-2.5">
           <Checkbox

@@ -2,15 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  CheckCircle2,
-  ShieldCheck,
-  Upload,
-  FileText,
-  AlertCircle,
-  RefreshCw,
-  Lock,
-} from "lucide-react";
+import { CheckCircle2, ShieldCheck, Upload, AlertCircle, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useDraft } from "@/lib/drafts";
@@ -52,7 +44,7 @@ const TYPE_LABEL = { adotante: "Adotante", ong: "ONG", protetor: "Protetor Indep
 
 function PerfilPage() {
   const { user } = useAuth();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", user?.id],
@@ -82,7 +74,9 @@ function PerfilPage() {
     try {
       const local = localStorage.getItem(`census:${profile.id}`);
       if (local) savedCensus = JSON.parse(local);
-    } catch {}
+    } catch {
+      // Ignora erro ao ler localStorage
+    }
 
     d.setValue({
       ...EMPTY,
@@ -116,7 +110,6 @@ function PerfilPage() {
     return r.ok;
   };
 
-  // Dedicated button to send ONLY the residence proof immediately
   const sendProofOnly = async () => {
     if (!user || !file) {
       return toast.error("Selecione um arquivo de comprovante antes de enviar.");
@@ -124,23 +117,20 @@ function PerfilPage() {
     setBusyProof(true);
     try {
       const proof_path = await uploadProof(user.id, file);
-
       const { error } = await supabase.from("profiles").update({ proof_path }).eq("id", user.id);
       if (error) throw error;
 
       setFile(null);
       toast.success("Comprovante de residência enviado com sucesso!");
-      qc.invalidateQueries({ queryKey: ["profile", user.id] });
-      qc.invalidateQueries({ queryKey: ["proof"] });
-    } catch (err) {
-      console.error("Erro ao enviar comprovante:", err);
+      queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["proof"] });
+    } catch {
       toast.error("Não foi possível enviar o comprovante. Tente novamente.");
     } finally {
       setBusyProof(false);
     }
   };
 
-  // Full profile save
   const save = async () => {
     if (!user || !profile) return;
     const type = profile.profile_type;
@@ -178,13 +168,13 @@ function PerfilPage() {
       }
     }
 
-    // Save census fields to localStorage
     const { name, phone, cep, address, cpf, cnpj, social_link, ...censusData } = v;
     try {
       localStorage.setItem(`census:${user.id}`, JSON.stringify(censusData));
-    } catch {}
+    } catch {
+      // Ignora falha local
+    }
 
-    // Only update existing columns in profiles table
     const updateData = {
       name: name?.trim() || null,
       phone: phone?.trim() || null,
@@ -201,7 +191,6 @@ function PerfilPage() {
     setBusy(false);
 
     if (error) {
-      console.error("Erro ao salvar perfil:", error);
       return toast.error("Não foi possível salvar os dados. Tente novamente.");
     }
 
@@ -209,8 +198,8 @@ function PerfilPage() {
     setFile(null);
     setAvatar(null);
     toast.success("Perfil e documentos salvos com sucesso!");
-    qc.invalidateQueries({ queryKey: ["profile", user.id] });
-    qc.invalidateQueries({ queryKey: ["proof"] });
+    queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+    queryClient.invalidateQueries({ queryKey: ["proof"] });
   };
 
   if (isLoading || !profile) {
@@ -262,7 +251,6 @@ function PerfilPage() {
           </p>
         </div>
 
-        {/* Avatar Upload */}
         <FileUploadDropzone
           file={avatar}
           onFileChange={setAvatar}
@@ -324,7 +312,6 @@ function PerfilPage() {
           </Field>
         )}
 
-        {/* Adopter Questionnaire and Residence Proof */}
         {isAdopter && (
           <div className="space-y-5 rounded-2xl border border-primary/25 bg-accent/40 p-5 md:p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -381,7 +368,6 @@ function PerfilPage() {
               />
             </Field>
 
-            {/* Proof Upload Area */}
             <div className="space-y-3 rounded-xl border-2 border-primary/30 bg-card p-4">
               <FileUploadDropzone
                 file={file}
@@ -444,7 +430,6 @@ function PerfilPage() {
         {d.savedLabel && <p className="text-xs italic text-primary">{d.savedLabel}</p>}
       </form>
 
-      {/* Sidebar: Profile Status and Information */}
       <aside className="vintage-card h-fit space-y-4 p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-primary">Status do Perfil</h2>

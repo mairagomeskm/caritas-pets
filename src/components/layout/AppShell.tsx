@@ -9,6 +9,7 @@ import {
   LogOut,
   Lock,
   ListChecks,
+  Sparkles,
 } from "lucide-react";
 import { FloatingHeader, NavLinks } from "@/components/layout/FloatingHeader";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
@@ -50,6 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         : "/meus-pets";
 
   const items: { to: string; label: string; icon: typeof User; show?: boolean }[] = [
+    { to: "/saudades", label: "Cantinho da Saudade ✨", icon: Sparkles },
     { to: "/perfil", label: "Editar Meu Perfil", icon: User },
     { to: "/meus-pets", label: "Gerenciar Meus Pets/Anúncios", icon: ListChecks },
     { to: "/chats", label: "Meus Chats", icon: MessageCircle },
@@ -93,7 +95,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {!fullBleedChat && (
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-primary/30 bg-background md:hidden">
-          <div className="grid grid-cols-5">
+          <div className="grid grid-cols-6">
             <NavLinks mobile />
           </div>
         </nav>

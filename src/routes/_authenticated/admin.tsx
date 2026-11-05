@@ -13,10 +13,10 @@ import { Field } from "@/components/AuthForms";
 import { PetForm } from "@/components/PetForm";
 import { PetList } from "@/components/PetList";
 import { FileUploadDropzone } from "@/components/ui/file-upload-dropzone";
-import { logAuditAccess, fetchAllAuditLogs, type AuditLogEntry } from "@/lib/audit-logger";
+import { logAuditAccess, fetchAllAuditLogs } from "@/lib/audit-logger";
 import { runRetentionLifecycleJob } from "@/lib/data-retention";
 import { maskCPF, maskPhone } from "@/lib/crypto";
-import { ShieldCheck, RotateCcw, AlertCircle } from "lucide-react";
+import { ShieldCheck, RotateCcw } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -483,7 +483,6 @@ function UsersTab() {
     proof_path?: string | null;
   }) => {
     if (!targetUser.proof_path) return;
-    // Requisito 5 LGPD: Auditoria de acesso a dados e comprovantes pessoais
     await logAuditAccess({
       actorId: user?.id,
       actorRole: "admin",
@@ -546,7 +545,6 @@ function AuditTab() {
 
   return (
     <div className="space-y-4">
-      {/* Bloco de Ciclo de Vida e Retenção (60 dias) */}
       <div className="rounded-xl border border-primary/25 bg-accent/40 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h3 className="font-bold text-foreground text-base flex items-center gap-2">
@@ -568,7 +566,6 @@ function AuditTab() {
         </Button>
       </div>
 
-      {/* Trilha de Auditoria Geral */}
       <div className="vintage-card p-4 space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm text-foreground">

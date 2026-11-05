@@ -25,52 +25,63 @@ export const Route = createFileRoute("/ajuda")({
   component: AjudaPage,
 });
 
+interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+const FAQ_ITEMS: FaqItem[] = [
+  {
+    question: "Como adoto um pet?",
+    answer:
+      "Na aba Adoção, clique em “Tenho Interesse”. Um chat abre com o protetor e algumas perguntas rápidas.",
+  },
+  {
+    question: "Preciso enviar comprovante?",
+    answer: "Sim. Envie em Editar Meu Perfil junto com o censo de adoção.",
+  },
+  {
+    question: "Como funcionam as vaquinhas?",
+    answer:
+      "Cada campanha tem uma chave PIX própria. O valor vai direto para o responsável pelo pet.",
+  },
+  {
+    question: "Atendem fora do DF?",
+    answer: "Atendemos o DF e o entorno.",
+  },
+];
+
 function AjudaPage() {
   const { user, setAuthOpen } = useAuth();
   const navigate = useNavigate();
+
+  const handleOpenSupport = async () => {
+    if (!user) return setAuthOpen(true);
+    try {
+      const id = await openSupportChat(user.id);
+      navigate({ to: "/chats/$id", params: { id } });
+    } catch {
+      toast.error("Não foi possível abrir o suporte.");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="mt-6 rounded-lg bg-white px-4 py-2 font-bold text-3xl text-primary">
         Central de Ajuda
       </h1>
+
       <div className="vintage-card space-y-3 bg-accent p-6">
         <h2 className="text-xl font-bold">Suporte com a equipe</h2>
         <p>Converse diretamente com as criadoras do Carita's Pets.</p>
-        <Button
-          onClick={async () => {
-            if (!user) return setAuthOpen(true);
-            try {
-              const id = await openSupportChat(user.id);
-              navigate({ to: "/chats/$id", params: { id } });
-            } catch {
-              toast.error("Não foi possível abrir o suporte.");
-            }
-          }}
-        >
-          Abrir chat de suporte
-        </Button>
+        <Button onClick={handleOpenSupport}>Abrir chat de suporte</Button>
       </div>
+
       <Accordion type="single" collapsible className="vintage-card px-6">
-        {(
-          [
-            [
-              "Como adoto um pet?",
-              "Na aba Adoção, clique em “Tenho Interesse”. Um chat abre com o protetor e algumas perguntas rápidas.",
-            ],
-            [
-              "Preciso enviar comprovante?",
-              "Sim. Envie em Editar Meu Perfil junto com o censo de adoção.",
-            ],
-            [
-              "Como funcionam as vaquinhas?",
-              "Cada campanha tem uma chave PIX própria. O valor vai direto para o responsável pelo pet.",
-            ],
-            ["Atendem fora do DF?", "Atendemos o DF e o entorno."],
-          ] as [string, string][]
-        ).map(([q, a]) => (
-          <AccordionItem key={q} value={q}>
-            <AccordionTrigger>{q}</AccordionTrigger>
-            <AccordionContent>{a}</AccordionContent>
+        {FAQ_ITEMS.map((item) => (
+          <AccordionItem key={item.question} value={item.question}>
+            <AccordionTrigger>{item.question}</AccordionTrigger>
+            <AccordionContent>{item.answer}</AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>

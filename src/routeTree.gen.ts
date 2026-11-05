@@ -18,6 +18,7 @@ import { Route as ComunidadeRouteImport } from './routes/comunidade'
 import { Route as DesaparecidosRouteImport } from './routes/desaparecidos'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SaudadesRouteImport } from './routes/saudades'
 import { Route as VaquinhasRouteImport } from './routes/vaquinhas'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedMeusPetsRouteImport } from './routes/_authenticated/meus-pets'
@@ -70,6 +71,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SaudadesRoute = SaudadesRouteImport.update({
+  id: '/saudades',
+  path: '/saudades',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VaquinhasRoute = VaquinhasRouteImport.update({
   id: '/vaquinhas',
   path: '/vaquinhas',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/desaparecidos': typeof DesaparecidosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/saudades': typeof SaudadesRoute
   '/vaquinhas': typeof VaquinhasRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/meus-pets': typeof AuthenticatedMeusPetsRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/desaparecidos': typeof DesaparecidosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/saudades': typeof SaudadesRoute
   '/vaquinhas': typeof VaquinhasRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/meus-pets': typeof AuthenticatedMeusPetsRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/desaparecidos': typeof DesaparecidosRoute
   '/privacidade': typeof PrivacidadeRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/saudades': typeof SaudadesRoute
   '/vaquinhas': typeof VaquinhasRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/meus-pets': typeof AuthenticatedMeusPetsRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/desaparecidos'
     | '/privacidade'
     | '/reset-password'
+    | '/saudades'
     | '/vaquinhas'
     | '/admin'
     | '/meus-pets'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/desaparecidos'
     | '/privacidade'
     | '/reset-password'
+    | '/saudades'
     | '/vaquinhas'
     | '/admin'
     | '/meus-pets'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/desaparecidos'
     | '/privacidade'
     | '/reset-password'
+    | '/saudades'
     | '/vaquinhas'
     | '/_authenticated/admin'
     | '/_authenticated/meus-pets'
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   DesaparecidosRoute: typeof DesaparecidosRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SaudadesRoute: typeof SaudadesRoute
   VaquinhasRoute: typeof VaquinhasRoute
 }
 
@@ -291,6 +304,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saudades': {
+      id: '/saudades'
+      path: '/saudades'
+      fullPath: '/saudades'
+      preLoaderRoute: typeof SaudadesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vaquinhas': {
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   DesaparecidosRoute: DesaparecidosRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SaudadesRoute: SaudadesRoute,
   VaquinhasRoute: VaquinhasRoute,
 }
 export const routeTree = rootRouteImport

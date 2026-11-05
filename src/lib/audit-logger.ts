@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
 export type AuditAction =
   | "view_full_profile"
@@ -43,7 +44,7 @@ export async function logAuditAccess(params: {
       target_user_id: params.targetUserId ?? null,
       action: params.action,
       resource: params.resource || "profiles",
-      details: (params.details || {}) as any,
+      details: (params.details || {}) as unknown as Json,
       user_agent: ua,
     });
 

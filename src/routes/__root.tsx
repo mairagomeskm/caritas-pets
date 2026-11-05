@@ -37,11 +37,11 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
-  console.error(error);
   const router = useRouter();
   useEffect(() => {
     reportAppError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="vintage-card max-w-md p-8 text-center">
@@ -90,90 +90,6 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-BR">
       <head>
         <HeadContent />
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              #lovable-badge,
-              #lovable-badge-wrap,
-              [id*="lovable"],
-              [class*="lovable"],
-              [data-lovable],
-              [data-lovable-badge],
-              aside[id*="lovable"],
-              div[id*="lovable"],
-              a[href*="lovable.dev"],
-              a[href*="lovable.app"],
-              a[href*="gptengineer"],
-              [id*="gptengineer"],
-              [class*="gptengineer"] {
-                display: none !important;
-                visibility: hidden !important;
-                opacity: 0 !important;
-                pointer-events: none !important;
-                position: absolute !important;
-                top: -99999px !important;
-                left: -99999px !important;
-                width: 0 !important;
-                height: 0 !important;
-                max-width: 0 !important;
-                max-height: 0 !important;
-                overflow: hidden !important;
-                clip: rect(0, 0, 0, 0) !important;
-                z-index: -99999 !important;
-              }
-            `,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var clean = function() {
-                  try {
-                    var selectors = [
-                      '#lovable-badge',
-                      '#lovable-badge-wrap',
-                      'aside[id*="lovable"]',
-                      'div[id*="lovable"]',
-                      '[id*="lovable-badge"]',
-                      '[class*="lovable"]',
-                      '[data-lovable-badge]',
-                      '[data-lovable]',
-                      'a[href*="lovable.dev"]',
-                      'a[href*="lovable.app"]',
-                      'a[href*="gptengineer"]',
-                      '[id*="gptengineer"]',
-                      '[class*="gptengineer"]'
-                    ];
-                    selectors.forEach(function(sel) {
-                      document.querySelectorAll(sel).forEach(function(el) {
-                        el.remove();
-                      });
-                    });
-                    document.querySelectorAll('*').forEach(function(el) {
-                      if (el.shadowRoot) {
-                        selectors.forEach(function(sel) {
-                          el.shadowRoot.querySelectorAll(sel).forEach(function(badge) {
-                            badge.remove();
-                          });
-                        });
-                      }
-                    });
-                  } catch (e) {}
-                };
-                clean();
-                if (typeof window !== 'undefined') {
-                  if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', clean);
-                  }
-                  window.addEventListener('load', clean);
-                  var observer = new MutationObserver(clean);
-                  observer.observe(document.documentElement, { childList: true, subtree: true });
-                }
-              })();
-            `,
-          }}
-        />
       </head>
       <body>
         {children}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShieldAlert, CheckCircle2, Lock, FileText, ArrowRight } from "lucide-react";
+import { ShieldAlert, CheckCircle2, Lock, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -39,7 +39,6 @@ export function AdoptionConsentModal({
     setLoading(true);
 
     try {
-      // 1. Registra consentimento específico do titular (Art. 7º, I e Art. 8º da LGPD)
       await recordConsent({
         userId,
         consentType: "compartilhamento_com_ong",
@@ -53,7 +52,6 @@ export function AdoptionConsentModal({
         },
       });
 
-      // 2. Registra na trilha de auditoria
       await logAuditAccess({
         actorId: userId,
         actorRole: "adotante",
@@ -67,9 +65,9 @@ export function AdoptionConsentModal({
       });
 
       onConsentGranted();
-    } catch (err) {
-      console.error("Falha ao registrar consentimento de compartilhamento:", err);
-      onConsentGranted(); // Prossegue em caso de contingência
+    } catch {
+      // Prossegue em contingência para não bloquear o adotante
+      onConsentGranted();
     } finally {
       setLoading(false);
       onOpenChange(false);
@@ -136,7 +134,6 @@ export function AdoptionConsentModal({
             </p>
           </div>
 
-          {/* Opt-in Explícito (Desmarcado por padrão) */}
           <div className="flex items-start gap-2.5 rounded-xl border-2 border-primary/25 bg-card p-3">
             <Checkbox
               id="adoption-consent"

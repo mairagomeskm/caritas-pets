@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { hashIdentifier } from "./crypto";
 
 export type ConsentType =
@@ -52,7 +53,7 @@ export async function recordConsent(params: {
       status,
       ip_address: ipHash,
       user_agent: ua,
-      metadata: (params.metadata || {}) as any,
+      metadata: (params.metadata || {}) as unknown as Json,
     });
 
     if (error) {

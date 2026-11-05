@@ -2,18 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import {
-  Heart,
-  Sparkles,
-  Copy,
-  Check,
-  Info,
-  ShieldCheck,
-  Clock,
-  Share2,
-  AlertCircle,
-  HelpCircle,
-} from "lucide-react";
+import { Heart, Sparkles, Copy, Check, Info, ShieldCheck, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,6 +17,23 @@ import {
 import { pixPayload } from "@/lib/pix";
 import { useAuth } from "@/hooks/use-auth";
 import { openPetChat } from "@/lib/chat";
+
+interface DbCampaign {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  story?: string | null;
+  medical_details?: string | null;
+  urgency?: string | null;
+  photo_url?: string | null;
+  goal?: number | string | null;
+  raised?: number | string | null;
+  donors_count?: number | null;
+  pix_key?: string | null;
+  pix_name?: string | null;
+  active?: boolean | null;
+  pets?: { id: string; name: string } | null;
+}
 
 export const Route = createFileRoute("/vaquinhas")({
   head: () => ({
@@ -54,20 +60,20 @@ const brl = (n: number) => n.toLocaleString("pt-BR", { style: "currency", curren
 export interface CampaignItem {
   id: string;
   title: string;
-  short_description?: string | undefined;
+  short_description?: string;
   story: string;
-  medical_details?: string | undefined;
-  urgency: "Urgente" | "Cirurgia Marcada" | "Alimentação" | "Tratamento Contínuo";
+  medical_details?: string;
+  urgency: string;
   photo_url: string;
   goal: number;
   raised: number;
-  donors_count?: number | undefined;
+  donors_count?: number;
   pix_key: string;
   pix_name: string;
-  pix_key_type?: string | undefined;
-  location?: string | undefined;
+  pix_key_type?: string;
+  location?: string;
   active: boolean;
-  pets?: { id: string; name: string } | null | undefined;
+  pets?: { id: string; name: string } | null;
 }
 
 const DEFAULT_CAMPAIGNS: CampaignItem[] = [
@@ -138,6 +144,14 @@ const DEFAULT_CAMPAIGNS: CampaignItem[] = [
 
 const PRESET_AMOUNTS = ["5", "10", "20", "50", "100"];
 
+function mapUrgency(urgency?: string | null): string {
+  if (!urgency) return "Urgente";
+  if (urgency === "critica") return "Cirurgia Marcada";
+  if (urgency === "alta") return "Urgente";
+  if (urgency === "moderada") return "Tratamento Contínuo";
+  return urgency;
+}
+
 function VaquinhasPage() {
   const [selectedPix, setSelectedPix] = useState<CampaignItem | null>(null);
   const [storyModalPet, setStoryModalPet] = useState<CampaignItem | null>(null);
@@ -156,14 +170,13 @@ function VaquinhasPage() {
         .eq("active", true)
         .order("created_at", { ascending: false });
       if (error) return [];
-      return data;
+      return (data || []) as DbCampaign[];
     },
   });
 
-  // Merge default rich campaigns with any DB campaigns
   const campaigns: CampaignItem[] =
     data && data.length > 0
-      ? data.map((d: any, idx: number) => {
+      ? data.map((d, idx) => {
           const fallback =
             DEFAULT_CAMPAIGNS[idx % DEFAULT_CAMPAIGNS.length] || DEFAULT_CAMPAIGNS[0]!;
           return {
@@ -172,11 +185,11 @@ function VaquinhasPage() {
             short_description: d.description || fallback.short_description,
             story: d.story || fallback.story,
             medical_details: d.medical_details || fallback.medical_details,
-            urgency: d.urgency || fallback.urgency,
+            urgency: mapUrgency(d.urgency || fallback.urgency),
             photo_url: d.photo_url || fallback.photo_url,
             goal: Number(d.goal) || fallback.goal,
             raised: Number(d.raised) || fallback.raised,
-            donors_count: d.donors_count || fallback.donors_count,
+            donors_count: d.donors_count ?? fallback.donors_count,
             pix_key: d.pix_key || fallback.pix_key,
             pix_name: d.pix_name || fallback.pix_name,
             pix_key_type: fallback.pix_key_type,
@@ -223,7 +236,6 @@ function VaquinhasPage() {
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Top Banner Notice */}
       <div className="relative overflow-hidden rounded-2xl border-2 border-primary/30 bg-gradient-to-r from-amber-50 via-rose-50 to-orange-50 p-6 md:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center md:text-left max-w-2xl">
@@ -258,7 +270,6 @@ function VaquinhasPage() {
         </div>
       </div>
 
-      {/* Campaigns Grid */}
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {campaigns.map((c) => {
           const pct =
@@ -302,7 +313,6 @@ function VaquinhasPage() {
                     )}
                   </div>
 
-                  {/* Emotional story snippet */}
                   <div className="rounded-xl bg-primary/5 p-3.5 border border-primary/15 text-sm text-foreground/85 leading-relaxed">
                     <p className="line-clamp-3 italic">"{c.story}"</p>
                     <button
@@ -314,7 +324,6 @@ function VaquinhasPage() {
                     </button>
                   </div>
 
-                  {/* Progress bar */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs font-semibold">
                       <span className="text-primary font-bold">{pct}% arrecadado</span>
@@ -336,7 +345,6 @@ function VaquinhasPage() {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="p-5 pt-0 space-y-2.5">
                 <p className="text-center text-xs font-medium text-emerald-800 bg-emerald-50 rounded-md py-1 border border-emerald-200">
                   ✨ Toda contribuição importa! Doe qualquer quantia via PIX
@@ -374,7 +382,6 @@ function VaquinhasPage() {
         })}
       </div>
 
-      {/* Story & Veterinary Details Modal */}
       <Dialog open={!!storyModalPet} onOpenChange={(open) => !open && setStoryModalPet(null)}>
         <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
           {storyModalPet && (
@@ -447,7 +454,6 @@ function VaquinhasPage() {
         </DialogContent>
       </Dialog>
 
-      {/* PIX Donation Modal */}
       <Dialog open={!!selectedPix} onOpenChange={(open) => !open && setSelectedPix(null)}>
         <DialogContent className="max-w-md">
           {selectedPix && (
@@ -462,7 +468,6 @@ function VaquinhasPage() {
                 </DialogDescription>
               </DialogHeader>
 
-              {/* Preset Amount Buttons */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground">
                   Escolha um valor ou digite abaixo (qualquer quantia):
@@ -498,7 +503,6 @@ function VaquinhasPage() {
                 </div>
               </div>
 
-              {/* QR Code Container */}
               <div className="flex flex-col items-center justify-center rounded-xl bg-card p-4 border border-primary/25 shadow-xs">
                 <QRCodeSVG value={pixCode} size={190} level="M" />
                 <p className="mt-2 text-xs font-medium text-muted-foreground">
@@ -511,7 +515,6 @@ function VaquinhasPage() {
                 )}
               </div>
 
-              {/* Direct PIX Key Option */}
               <div className="rounded-lg bg-accent/70 p-3 border border-primary/20 space-y-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-primary">
@@ -540,7 +543,6 @@ function VaquinhasPage() {
                 </p>
               </div>
 
-              {/* PIX Copia e Cola Code */}
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">
                   Código PIX Copia e Cola:

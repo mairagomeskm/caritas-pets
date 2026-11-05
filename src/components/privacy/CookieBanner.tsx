@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Cookie, ShieldCheck, Settings2, Check, X } from "lucide-react";
+import { Cookie, ShieldCheck, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -9,37 +9,23 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-
-export interface CookiePreferences {
-  essential: true;
-  analytics: boolean;
-  marketing: boolean;
-  answered: boolean;
-  timestamp: string;
-}
-
-const STORAGE_KEY = "caritas_cookie_preferences_v1";
-
-const DEFAULT_PREFS: CookiePreferences = {
-  essential: true,
-  analytics: false, // Desativado por padrão (Privacy by Default)
-  marketing: false, // Desativado por padrão (Privacy by Default)
-  answered: false,
-  timestamp: "",
-};
+import {
+  COOKIE_STORAGE_KEY,
+  DEFAULT_COOKIE_PREFERENCES,
+  type CookiePreferences,
+} from "@/lib/cookie-consent";
 
 export function CookieBanner() {
   const [open, setOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [prefs, setPrefs] = useState<CookiePreferences>(DEFAULT_PREFS);
+  const [prefs, setPrefs] = useState<CookiePreferences>(DEFAULT_COOKIE_PREFERENCES);
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(COOKIE_STORAGE_KEY);
       if (stored) {
         setPrefs(JSON.parse(stored));
       } else {
-        // Se ainda não respondeu, exibe o banner após breve delay para não bloquear carregamento inicial
         const timer = setTimeout(() => setOpen(true), 1200);
         return () => clearTimeout(timer);
       }
@@ -58,8 +44,10 @@ export function CookieBanner() {
     };
     setPrefs(finalPrefs);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(finalPrefs));
-    } catch {}
+      localStorage.setItem(COOKIE_STORAGE_KEY, JSON.stringify(finalPrefs));
+    } catch {
+      // Ignora erro de quota ou storage indisponível
+    }
     setOpen(false);
     setModalOpen(false);
   };
@@ -76,7 +64,6 @@ export function CookieBanner() {
 
   return (
     <>
-      {/* Banner Principal Fixo na Base */}
       {open && (
         <aside
           role="region"
@@ -136,7 +123,6 @@ export function CookieBanner() {
         </aside>
       )}
 
-      {/* Modal de Preferências Granulares de Cookies */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
@@ -150,7 +136,6 @@ export function CookieBanner() {
           </DialogHeader>
 
           <div className="space-y-4 py-2">
-            {/* Categoria 1: Essenciais */}
             <div className="rounded-xl border border-primary/20 bg-accent/40 p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <div>
@@ -169,7 +154,6 @@ export function CookieBanner() {
               </div>
             </div>
 
-            {/* Categoria 2: Analíticos */}
             <div className="rounded-xl border border-primary/20 bg-card p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="pr-4">
@@ -188,7 +172,6 @@ export function CookieBanner() {
               </div>
             </div>
 
-            {/* Categoria 3: Comunicações e Campanhas */}
             <div className="rounded-xl border border-primary/20 bg-card p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <div className="pr-4">
@@ -235,15 +218,4 @@ export function CookieBanner() {
       </Dialog>
     </>
   );
-}
-
-/**
- * Função utilitária para abrir o modal de preferências de cookies de qualquer lugar da aplicação
- */
-export function openCookieSettings() {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    const event = new CustomEvent("open-cookie-settings", { detail: stored });
-    window.dispatchEvent(event);
-  } catch {}
 }

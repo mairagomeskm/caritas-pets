@@ -1,16 +1,18 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "caritas-pets",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
+    "postbuild": "node -e \"const fs = require('fs'); const copySync = (src, dst) => { if(fs.existsSync(src)) { fs.mkdirSync(dst, {recursive: true}); fs.cpSync(src, dst, {recursive: true}); } }; if (fs.existsSync('.output/public')) { copySync('.output/public', 'dist'); } fs.copyFileSync('index.html', 'dist/index.html'); if(fs.existsSync('.output/public')) fs.copyFileSync('index.html', '.output/public/index.html'); if(fs.existsSync('.vercel/output/static')) fs.copyFileSync('index.html', '.vercel/output/static/index.html');\"",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "tunnel": "node tunnel.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -47,7 +49,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
-    "@lovable.dev/vite-tanstack-config": "^2.24.0",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

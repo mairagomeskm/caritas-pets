@@ -1,5 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Menu, Home, PawPrint, HandCoins, Search, Newspaper } from "lucide-react";
+import {
+  ArrowLeft,
+  Menu,
+  Home,
+  PawPrint,
+  HandCoins,
+  Search,
+  Newspaper,
+  Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -84,6 +93,7 @@ export function NavLinks({ mobile }: { mobile?: boolean }) {
     { to: "/vaquinhas", label: "Vaquinhas", icon: HandCoins },
     { to: "/desaparecidos", label: "Desaparecidos", icon: Search },
     { to: "/comunidade", label: "Comunidade", icon: Newspaper },
+    { to: "/saudades", label: "Saudades ✨", icon: Sparkles },
   ] as const;
   return (
     <>

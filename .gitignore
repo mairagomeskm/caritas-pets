@@ -1,5 +1,11 @@
+# Environment variables
+.env
+.env.local
+.env.*
+!.env.example
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,28 +13,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-.output
-.vinxi
-.tanstack/**
-.nitro
-*.local
+# Dependencies
+node_modules/
 
-# Wrangler / Cloudflare
+# Build artifacts
+dist/
+dist-ssr/
+.output/
+.vinxi/
+.tanstack/
+.nitro/
 .wrangler/
 .dev.vars
+.vercel/
+
+# Temporary and binaries
+cloudflared.exe
+tunnel_url.txt
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-tunnel_url.txt
-cloudflared.exe
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/

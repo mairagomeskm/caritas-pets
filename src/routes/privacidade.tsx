@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ShieldCheck,
@@ -7,21 +7,16 @@ import {
   Trash2,
   Lock,
   Eye,
-  FileText,
   AlertTriangle,
   CheckCircle2,
-  HelpCircle,
-  ExternalLink,
-  History,
   UserX,
-  Mail,
   Fingerprint,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { getUserConsents, revokeConsent, type ConsentRecord } from "@/lib/privacy-consent";
-import { fetchSubjectAuditTrail, type AuditLogEntry } from "@/lib/audit-logger";
+import { getUserConsents, revokeConsent } from "@/lib/privacy-consent";
+import { fetchSubjectAuditTrail } from "@/lib/audit-logger";
 import { maskCPF, maskPhone, maskAddress } from "@/lib/crypto";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -60,13 +55,26 @@ export const Route = createFileRoute("/privacidade")({
   component: PrivacyPage,
 });
 
-function PrivacyPage() {
+interface AdopterProfile {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  cpf: string | null;
+  cnpj: string | null;
+  profile_type: string | null;
+  cep: string | null;
+  address: string | null;
+  social_link: string | null;
+  proof_path: string | null;
+  created_at: string;
+}
+
+export function PrivacyPage() {
   const { user, signOut } = useAuth();
-  const qc = useQueryClient();
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Busca dados cadastrais do titular
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["privacy-profile", user?.id],
     enabled: !!user,
@@ -77,25 +85,22 @@ function PrivacyPage() {
         .eq("id", user!.id)
         .single();
       if (error) throw error;
-      return data;
+      return data as AdopterProfile;
     },
   });
 
-  // Busca histórico de consentimentos
   const { data: consents = [], refetch: refetchConsents } = useQuery({
     queryKey: ["privacy-consents", user?.id],
     enabled: !!user,
     queryFn: () => (user ? getUserConsents(user.id) : []),
   });
 
-  // Busca trilha de auditoria (quem acessou os dados do titular)
   const { data: auditTrail = [] } = useQuery({
     queryKey: ["privacy-audit-trail", user?.id],
     enabled: !!user,
     queryFn: () => (user ? fetchSubjectAuditTrail(user.id) : []),
   });
 
-  // Verifica se o usuário possui termos de adoção concluídos
   const { data: completedAdoptions = [] } = useQuery({
     queryKey: ["privacy-completed-adoptions", user?.id],
     enabled: !!user,
@@ -112,7 +117,6 @@ function PrivacyPage() {
 
   const hasAdoptedPets = completedAdoptions.length > 0;
 
-  // Ação de Portabilidade de Dados (Art. 18, II e V da LGPD)
   const handleExportData = () => {
     if (!user || !profile) return;
 
@@ -120,7 +124,9 @@ function PrivacyPage() {
     try {
       const localCensus = localStorage.getItem(`census:${user.id}`);
       if (localCensus) census = JSON.parse(localCensus);
-    } catch {}
+    } catch {
+      // Ignora erro de JSON
+    }
 
     const exportPackage = {
       export_metadata: {
@@ -160,7 +166,6 @@ function PrivacyPage() {
     toast.success("Arquivo de dados exportado com sucesso (formato JSON portável).");
   };
 
-  // Revogação de consentimento opcional (Art. 8º, § 5º da LGPD)
   const handleRevokeMarketing = async () => {
     if (!user) return;
     const res = await revokeConsent({
@@ -177,7 +182,6 @@ function PrivacyPage() {
     }
   };
 
-  // Solicitação de Exclusão / Anonimização (Art. 18, VI e Art. 16, I da LGPD)
   const handleErasureRequest = async () => {
     if (!user || deleteConfirmation !== "EXCLUIR") {
       return toast.error('Digite a palavra "EXCLUIR" em maiúsculas para confirmar.');
@@ -185,15 +189,13 @@ function PrivacyPage() {
 
     setIsDeleting(true);
     try {
-      // 1. Tenta acionar a função de expurgo / anonimização segura no banco
-      const { data, error } = await (supabase.rpc as any)("request_user_data_erasure", {
-        _target_user_id: user.id,
-      });
+      const { data, error } = await supabase.rpc(
+        "request_user_data_erasure" as never,
+        { _target_user_id: user.id } as never,
+      );
 
       if (error) {
-        // Fallback direto de aplicação
         if (hasAdoptedPets) {
-          // Mantém isolado e anonimiza perfil
           const anonTag = `anon_${user.id.substring(0, 8)}`;
           await supabase
             .from("profiles")
@@ -213,17 +215,17 @@ function PrivacyPage() {
             "Seus dados de perfil foram anonimizados. O registro do termo de guarda do animal foi arquivado em cofre seguro conforme Art. 16, I da LGPD.",
           );
         } else {
-          // Hard delete de todos os dados
           await supabase.from("profiles").delete().eq("id", user.id);
           try {
             localStorage.removeItem(`census:${user.id}`);
-          } catch {}
+          } catch {
+            // Ignora falha local
+          }
           toast.success("Todos os seus dados pessoais foram excluídos permanentemente.");
         }
       } else {
         const msg =
-          (data as unknown as { message?: string })?.message ||
-          "Solicitação processada com sucesso.";
+          (data as { message?: string } | null)?.message || "Solicitação processada com sucesso.";
         toast.success(msg);
       }
 
@@ -238,7 +240,6 @@ function PrivacyPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 pb-16">
-      {/* Cabeçalho */}
       <div className="border-b border-primary/20 pb-5">
         <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 px-3 py-1 text-xs font-bold mb-2">
           <ShieldCheck className="h-4 w-4" /> Conformidade LGPD · Lei nº 13.709/2018
@@ -262,7 +263,6 @@ function PrivacyPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* TAB 1: PORTAL DE DIREITOS DO TITULAR (ART. 18 LGPD) */}
         <TabsContent value="titular" className="space-y-6">
           {!user ? (
             <div className="vintage-card p-8 text-center space-y-4">
@@ -282,7 +282,6 @@ function PrivacyPage() {
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Seção 1: Portabilidade de Dados (Art. 18, V) */}
               <section className="vintage-card p-6 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-primary/15 pb-4">
                   <div className="space-y-1">
@@ -358,7 +357,6 @@ function PrivacyPage() {
                 )}
               </section>
 
-              {/* Seção 2: Gestão de Consentimentos Ativos (Art. 8º, § 5º) */}
               <section className="vintage-card p-6 space-y-4">
                 <div className="space-y-1 border-b border-primary/15 pb-4">
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -411,7 +409,6 @@ function PrivacyPage() {
                 </div>
               </section>
 
-              {/* Seção 3: Trilha de Auditoria e Transparência de Compartilhamento (Art. 18, IV) */}
               <section className="vintage-card p-6 space-y-4">
                 <div className="space-y-1 border-b border-primary/15 pb-4">
                   <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
@@ -460,7 +457,6 @@ function PrivacyPage() {
                 )}
               </section>
 
-              {/* Seção 4: Eliminação de Dados e Direito ao Esquecimento (Art. 18, VI e Art. 16, I) */}
               <section className="rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-6 space-y-4">
                 <div className="space-y-1">
                   <h3 className="text-lg font-extrabold text-destructive flex items-center gap-2">
@@ -562,7 +558,6 @@ function PrivacyPage() {
           )}
         </TabsContent>
 
-        {/* TAB 2: POLÍTICA DE PRIVACIDADE COMPLETA (ART. 9º LGPD) */}
         <TabsContent value="politica">
           <article className="vintage-card p-6 md:p-10 space-y-6 text-sm leading-relaxed text-foreground/90">
             <div>
