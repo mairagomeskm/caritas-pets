@@ -2,15 +2,20 @@ import os
 import sys
 from pathlib import Path
 
-# Garante que a raiz do projeto esteja no sys.path mesmo em ambientes serverless da Vercel
-ROOT_DIR = Path(__file__).resolve().parent.parent
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+# Suporte universal a sys.path: tanto da raiz quanto da pasta backend
+CURRENT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = CURRENT_DIR.parent
+BACKEND_DIR = ROOT_DIR / "backend"
 
-from fastapi import FastAPI, Response
+# Garante que ROOT_DIR fique na frente do sys.path para priorizar imports corretos
+for p in [str(BACKEND_DIR), str(ROOT_DIR)]:
+    if p in sys.path:
+        sys.path.remove(p)
+    sys.path.insert(0, p)
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
 
 from app.middleware import CsrfProtectionMiddleware, ErrorHandlingMiddleware
 from app.routes import retention, audit, crypto, pix, validators
@@ -46,63 +51,29 @@ async def health_check():
     return {
         "status": "ok",
         "platform": "Carita's Pets",
-        "service": "Python Backend",
+        "service": "Python Backend API",
         "supabase_configured": bool(settings.supabase_url and settings.supabase_key),
     }
 
-# Configuracao de caminhos estaticos com resolucao absoluta
-DIST_DIR = ROOT_DIR / "dist"
-PUBLIC_DIR = ROOT_DIR / "public"
-
-if (DIST_DIR / "assets").is_dir():
-    app.mount("/assets", StaticFiles(directory=str(DIST_DIR / "assets")), name="assets")
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    for candidate in [
-        PUBLIC_DIR / "favicon.ico",
-        PUBLIC_DIR / "favicon.png",
-        DIST_DIR / "favicon.ico",
-        DIST_DIR / "favicon.png",
-    ]:
-        if candidate.is_file():
-            return FileResponse(candidate)
-    return Response(status_code=204)
-
+# Endpoint leve para caso uma requisicao direta caia na funcao serverless
 @app.get("/", include_in_schema=False)
-async def serve_root():
-    index_file = DIST_DIR / "index.html"
-    if index_file.is_file():
-        return FileResponse(index_file)
+async def root_fallback():
     return {
         "status": "ok",
-        "platform": "Carita's Pets",
-        "service": "Python Backend",
-        "message": "Carita's Pets Backend ativo.",
+        "service": "Carita's Pets API",
+        "message": "Frontend estático é servido diretamente pelo Vite/CDN da Vercel.",
     }
 
-@app.get("/{full_path:path}", include_in_schema=False)
-async def catch_all_spa(full_path: str):
-    # Nao intercepta rotas da API
-    if full_path.startswith("api"):
-        return JSONResponse(status_code=404, content={"detail": f"Rota '/{full_path}' nao encontrada"})
-
-    # Tenta servir arquivo estatico compilado
-    candidate_dist = DIST_DIR / full_path
-    if candidate_dist.is_file():
-        return FileResponse(candidate_dist)
-
-    # Tenta servir arquivo publico
-    candidate_pub = PUBLIC_DIR / full_path
-    if candidate_pub.is_file():
-        return FileResponse(candidate_pub)
-
-    # Fallback de SPA para o index.html
-    index_file = DIST_DIR / "index.html"
-    if index_file.is_file():
-        return FileResponse(index_file)
-
-    return JSONResponse(status_code=404, content={"detail": f"Caminho '/{full_path}' nao encontrado"})
+# Desativa no ambiente Vercel qualquer montagem de StaticFiles ou FileResponse para 'dist'
+# Na Vercel os arquivos estáticos do Vite são servidos pela CDN e o StaticFiles causa crash
+# imediato no cold start (RuntimeError: Directory does not exist).
+IS_VERCEL = os.getenv("VERCEL") == "1" or bool(os.getenv("VERCEL_ENV"))
+if not IS_VERCEL:
+    DIST_DIR = ROOT_DIR / "dist"
+    assets_dir = DIST_DIR / "assets"
+    if assets_dir.is_dir():
+        from fastapi.staticfiles import StaticFiles
+        app.mount("/assets", StaticFiles(directory=str(assets_dir), check_dir=False), name="assets")
 
 if __name__ == "__main__":
     import uvicorn

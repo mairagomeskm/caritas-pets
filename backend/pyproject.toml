@@ -19,3 +19,7 @@ dependencies = [
 testpaths = ["backend/tests"]
 pythonpath = ["."]
 
+[tool.vercel.fastapi.static]
+cdn = false
+
+
