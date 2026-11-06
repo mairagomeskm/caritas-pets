@@ -6,8 +6,9 @@ function startTunnel() {
   const child = spawn(
     "ssh",
     [
+      "-T",
       "-R",
-      "80:localhost:8080",
+      "80:127.0.0.1:8080",
       "-o",
       "StrictHostKeyChecking=no",
       "-o",
@@ -23,9 +24,11 @@ function startTunnel() {
 
   const handleOutput = (data) => {
     const text = data.toString();
-    const match = text.match(/https:\/\/[a-zA-Z0-9-]+\.lhr\.life/);
+    const match =
+      text.match(/tunneled with tls termination,\s*(https:\/\/[a-zA-Z0-9-]+\.lhr\.life)/i) ||
+      (!text.includes("admin.localhost.run") && text.match(/https:\/\/[a-zA-Z0-9-]+\.lhr\.life/));
     if (match) {
-      const url = match[0];
+      const url = match[1] || match[0];
       fs.writeFileSync("tunnel_url.txt", url);
       console.log("\n==========================================");
       console.log("LINK PUBLICO ATIVO: " + url);
