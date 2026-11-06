@@ -11,12 +11,24 @@ type Ctx = {
   authOpen: boolean;
   setAuthOpen: (v: boolean) => void;
   signOut: () => Promise<void>;
+  loginAsGuest: (name?: string, profileType?: string) => void;
 };
 
 const AuthCtx = createContext<Ctx | null>(null);
 
+function getStoredUser(): User | null {
+  if (typeof window === "undefined") return null;
+  const stored = localStorage.getItem("caritas_user");
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as User;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(getStoredUser);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
   const router = useRouter();
@@ -24,17 +36,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+      const supaUser = session?.user ?? null;
+      if (supaUser) {
+        setUser(supaUser);
+        localStorage.setItem("caritas_registered", "true");
+        localStorage.setItem("caritas_user", JSON.stringify(supaUser));
+      } else {
+        const local = getStoredUser();
+        setUser(local);
+      }
       if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") {
         router.invalidate();
         if (event !== "SIGNED_OUT") qc.invalidateQueries();
         if (event === "SIGNED_IN") setAuthOpen(false);
       }
     });
+
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+      const supaUser = data.session?.user ?? null;
+      if (supaUser) {
+        setUser(supaUser);
+        localStorage.setItem("caritas_registered", "true");
+        localStorage.setItem("caritas_user", JSON.stringify(supaUser));
+      } else {
+        const local = getStoredUser();
+        setUser(local);
+      }
       setLoading(false);
     });
+
     return () => sub.subscription.unsubscribe();
   }, [router, qc]);
 
@@ -42,21 +72,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryKey: ["is-admin", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const { data } = await supabase.rpc("has_role", { _user_id: user!.id, _role: "admin" });
-      return !!data;
+      if (!user?.id) return false;
+      try {
+        const { data } = await supabase.rpc("has_role", { _user_id: user.id, _role: "admin" });
+        return !!data;
+      } catch {
+        return false;
+      }
     },
   });
 
+  const loginAsGuest = (name = "Adotante Carita's", profileType = "adotante") => {
+    const guestUser = {
+      id: "guest_" + Date.now(),
+      email: "adotante@caritas.local",
+      app_metadata: {},
+      user_metadata: {
+        name,
+        profile_type: profileType,
+      },
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+    } as unknown as User;
+
+    localStorage.setItem("caritas_registered", "true");
+    localStorage.setItem("caritas_user", JSON.stringify(guestUser));
+    setUser(guestUser);
+    setAuthOpen(false);
+    router.invalidate();
+    qc.invalidateQueries();
+  };
+
   const signOut = async () => {
+    localStorage.removeItem("caritas_user");
+    localStorage.removeItem("caritas_registered");
+    setUser(null);
     await qc.cancelQueries();
     qc.clear();
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch {}
     router.navigate({ to: "/", replace: true });
   };
 
   return (
     <AuthCtx.Provider
-      value={{ user, loading, isAdmin: !!user && isAdmin, authOpen, setAuthOpen, signOut }}
+      value={{
+        user,
+        loading,
+        isAdmin: !!user && isAdmin,
+        authOpen,
+        setAuthOpen,
+        signOut,
+        loginAsGuest,
+      }}
     >
       {children}
     </AuthCtx.Provider>

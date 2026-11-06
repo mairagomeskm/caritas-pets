@@ -17,8 +17,10 @@ import {
   ArrowRight,
   AlertTriangle,
   CheckCircle2,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 const hero = "/mascot.jpg";
 
@@ -69,6 +71,9 @@ const URGENT_CAMPAIGNS = [
 
 function Index() {
   const navigate = useNavigate();
+  const { user, setAuthOpen } = useAuth();
+  const isRegistered =
+    !!user || (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
 
   const { data: realPets = [] } = useQuery({
     queryKey: ["home-pets"],
@@ -256,7 +261,39 @@ function Index() {
           </Button>
         </div>
 
-        {displayPets.length === 0 ? (
+        {!isRegistered ? (
+          <div className="vintage-card p-8 sm:p-10 text-center space-y-4 rounded-2xl border-2 border-primary/20 bg-accent/30 shadow-sm">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Lock className="h-6 w-6" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-2xl font-bold text-foreground">
+                Pets Disponíveis para Adoção no DF
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                Para a proteção dos animais resgatados, o mural completo com fotos e contatos dos
+                protetores é liberado após o cadastro do adotante.
+              </p>
+            </div>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button
+                size="default"
+                className="font-bold gap-2"
+                onClick={() => setAuthOpen(true)}
+              >
+                <Heart className="h-4 w-4 fill-current" /> Cadastre-se para Ver os Pets
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
+                className="border-primary/30"
+                onClick={() => setAuthOpen(true)}
+              >
+                Já tenho conta / Entrar
+              </Button>
+            </div>
+          </div>
+        ) : displayPets.length === 0 ? (
           <div className="vintage-card p-10 text-center space-y-3">
             <Heart className="mx-auto h-10 w-10 text-primary/40" />
             <h3 className="text-lg font-bold text-foreground">
@@ -327,11 +364,13 @@ function Index() {
           </div>
         )}
 
-        <div className="text-center sm:hidden pt-2">
-          <Button asChild variant="outline" className="w-full border-primary/40 font-bold">
-            <Link to="/adocao">Ver todos os pets disponíveis</Link>
-          </Button>
-        </div>
+        {isRegistered && (
+          <div className="text-center sm:hidden pt-2">
+            <Button asChild variant="outline" className="w-full border-primary/40 font-bold">
+              <Link to="/adocao">Ver todos os pets disponíveis</Link>
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* Urgent Campaigns Preview with PIX of Any Amount */}

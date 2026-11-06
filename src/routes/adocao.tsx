@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import { Sparkles, ShieldCheck } from "lucide-react";
+import { Sparkles, ShieldCheck, Lock, Heart } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -59,6 +59,8 @@ function AdocaoPage() {
 
   const { user, setAuthOpen } = useAuth();
   const navigate = useNavigate();
+  const isRegistered =
+    !!user || (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
 
   const { data: dbPets = [] } = useQuery({
     queryKey: ["pets", "disponivel"],
@@ -211,46 +213,90 @@ function AdocaoPage() {
         </div>
       </div>
 
-      {/* Barra de Filtros e Busca */}
-      <PetFilters
-        filter={filter}
-        onFilterChange={setFilter}
-        region={region}
-        onRegionChange={setRegion}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-      />
-
-      {/* Grade de Pets */}
-      {list.length === 0 ? (
-        <div className="vintage-card p-12 text-center space-y-3">
-          <p className="text-xl font-bold text-primary">Nenhum pet encontrado com esses filtros.</p>
-          <p className="text-sm text-muted-foreground">
-            Experimente mudar a espécie ou selecionar "Todas as Regiões".
+      {/* Área Condicional: Exclusiva Pós-Cadastro */}
+      {!isRegistered ? (
+        <div className="vintage-card mx-auto max-w-2xl p-8 sm:p-10 text-center space-y-5 my-6 rounded-2xl border-2 border-primary/30 bg-accent/30 shadow-md">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/15 text-primary">
+            <Lock className="h-8 w-8" />
+          </div>
+          <div className="space-y-2">
+            <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary">
+              Área Exclusiva para Adotantes Cadastrados
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground">
+              Pets Disponíveis para Adoção no DF
+            </h2>
+            <p className="text-muted-foreground text-sm max-w-lg mx-auto">
+              Para a segurança e proteção dos animais resgatados no Distrito Federal, o catálogo
+              completo de cães e gatos com fichas detalhadas e contato dos protetores fica visível{" "}
+              <strong>apenas após o cadastro</strong>.
+            </p>
+          </div>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              size="lg"
+              className="w-full sm:w-auto font-bold gap-2 text-base"
+              onClick={() => setAuthOpen(true)}
+            >
+              <Heart className="h-4 w-4 fill-current" /> Fazer Cadastro para Ver os Pets
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto text-base border-primary/30"
+              onClick={() => setAuthOpen(true)}
+            >
+              Já tenho cadastro / Entrar
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground italic">
+            O cadastro é 100% gratuito e não exige verificação prévia de e-mail.
           </p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setFilter("todos");
-              setRegion("Todas");
-              setSearchTerm("");
-            }}
-          >
-            Ver todos os pets
-          </Button>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {list.map((p) => (
-            <PetCard
-              key={p.id}
-              pet={p}
-              onSelect={setSelectedPet}
-              onInterest={handleInterest}
-              onShare={handleSharePet}
-            />
-          ))}
-        </div>
+        <>
+          {/* Barra de Filtros e Busca */}
+          <PetFilters
+            filter={filter}
+            onFilterChange={setFilter}
+            region={region}
+            onRegionChange={setRegion}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+
+          {/* Grade de Pets */}
+          {list.length === 0 ? (
+            <div className="vintage-card p-12 text-center space-y-3">
+              <p className="text-xl font-bold text-primary">Nenhum pet encontrado com esses filtros.</p>
+              <p className="text-sm text-muted-foreground">
+                Experimente mudar a espécie ou selecionar "Todas as Regiões".
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setFilter("todos");
+                  setRegion("Todas");
+                  setSearchTerm("");
+                }}
+              >
+                Ver todos os pets
+              </Button>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {list.map((p) => (
+                <PetCard
+                  key={p.id}
+                  pet={p}
+                  onSelect={setSelectedPet}
+                  onInterest={handleInterest}
+                  onShare={handleSharePet}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Modal com a Ficha Completa do Pet */}
