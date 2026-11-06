@@ -30,6 +30,9 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
   };
 }
 
+const DEFAULT_SUPABASE_URL = "https://tneganruyavseivktbdt.supabase.co";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_m2eAHeEuylgxyAhbel6-wQ_ABqcTxBR";
+
 function createSupabaseClient() {
   const envSupabaseUrl =
     import.meta.env.VITE_SUPABASE_URL ||
@@ -52,21 +55,8 @@ function createSupabaseClient() {
       : "") ||
     "";
 
-  const supabaseUrl = envSupabaseUrl.trim();
-  const supabasePublishableKey = envSupabaseAnonKey.trim();
-
-  if (!supabaseUrl || !supabasePublishableKey) {
-    console.warn(
-      "[Carita's Pets] Aviso: Variáveis de ambiente VITE_SUPABASE_URL e/ou VITE_SUPABASE_ANON_KEY não encontradas. Configure-as no painel da Vercel (Settings > Environment Variables). Operando em fallback gracioso para evitar tela branca.",
-    );
-    return createClient<Database>(
-      "https://placeholder-caritas.supabase.co",
-      "placeholder-anon-key",
-      {
-        auth: { persistSession: false },
-      },
-    );
-  }
+  const supabaseUrl = envSupabaseUrl.trim() || DEFAULT_SUPABASE_URL;
+  const supabasePublishableKey = envSupabaseAnonKey.trim() || DEFAULT_SUPABASE_KEY;
 
   return createClient<Database>(supabaseUrl, supabasePublishableKey, {
     global: {
