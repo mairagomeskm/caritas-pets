@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./types";
 
-function isNewSupabaseApiKey(value: string): boolean {
+function isNewSupabaseApiKey(value?: string): boolean {
+  if (!value) return false;
   return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
 }
 
@@ -22,37 +23,49 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
       headers.delete("Authorization");
     }
 
-    headers.set("apikey", supabaseKey);
+    if (supabaseKey) {
+      headers.set("apikey", supabaseKey);
+    }
     return fetch(input, { ...init, headers });
   };
 }
 
-function getEnvVar(key: string): string {
-  if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env[key]) {
-    return import.meta.env[key];
-  }
-  if (typeof process !== "undefined" && process.env && process.env[key]) {
-    return process.env[key];
-  }
-  return "";
-}
-
 function createSupabaseClient() {
-  const supabaseUrl = getEnvVar("VITE_SUPABASE_URL") || getEnvVar("SUPABASE_URL");
+  const envSupabaseUrl =
+    import.meta.env.VITE_SUPABASE_URL ||
+    import.meta.env.SUPABASE_URL ||
+    (typeof process !== "undefined" && process.env
+      ? process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL
+      : "") ||
+    "";
 
-  const supabasePublishableKey =
-    getEnvVar("VITE_SUPABASE_PUBLISHABLE_KEY") ||
-    getEnvVar("VITE_SUPABASE_ANON_KEY") ||
-    getEnvVar("SUPABASE_PUBLISHABLE_KEY") ||
-    getEnvVar("SUPABASE_ANON_KEY");
+  const envSupabaseAnonKey =
+    import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+    import.meta.env.SUPABASE_ANON_KEY ||
+    import.meta.env.SUPABASE_PUBLISHABLE_KEY ||
+    (typeof process !== "undefined" && process.env
+      ? process.env.VITE_SUPABASE_ANON_KEY ||
+        process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+        process.env.SUPABASE_ANON_KEY ||
+        process.env.SUPABASE_PUBLISHABLE_KEY
+      : "") ||
+    "";
+
+  const supabaseUrl = envSupabaseUrl.trim();
+  const supabasePublishableKey = envSupabaseAnonKey.trim();
 
   if (!supabaseUrl || !supabasePublishableKey) {
     console.warn(
-      "Aviso: Variaveis de ambiente do Supabase nao configuradas (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY).",
+      "[Carita's Pets] Aviso: Variáveis de ambiente VITE_SUPABASE_URL e/ou VITE_SUPABASE_ANON_KEY não encontradas. Configure-as no painel da Vercel (Settings > Environment Variables). Operando em fallback gracioso para evitar tela branca.",
     );
-    return createClient<Database>("https://placeholder.supabase.co", "placeholder-anon-key", {
-      auth: { persistSession: false },
-    });
+    return createClient<Database>(
+      "https://placeholder-caritas.supabase.co",
+      "placeholder-anon-key",
+      {
+        auth: { persistSession: false },
+      },
+    );
   }
 
   return createClient<Database>(supabaseUrl, supabasePublishableKey, {
