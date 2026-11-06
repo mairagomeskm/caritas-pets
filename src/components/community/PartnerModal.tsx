@@ -336,66 +336,68 @@ export function PartnerModal({
                       </Button>
                     </div>
                   ) : (
-                  <div className="space-y-3 pb-3">
-                    <div className="flex items-center justify-between border-b border-border/40 pb-2">
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                          <PawPrint className="h-4 w-4 text-emerald-600" />
-                          Animais sob tutela de {partner.name} ({displayedPets.length})
-                        </h4>
-                        <p className="text-[11px] text-muted-foreground">
-                          Pets resgatados prontos para encher sua casa de amor no DF e entorno.
-                        </p>
+                    <div className="space-y-3 pb-3">
+                      <div className="flex items-center justify-between border-b border-border/40 pb-2">
+                        <div>
+                          <h4 className="font-bold text-sm text-foreground flex items-center gap-1.5">
+                            <PawPrint className="h-4 w-4 text-emerald-600" />
+                            Animais sob tutela de {partner.name} ({displayedPets.length})
+                          </h4>
+                          <p className="text-[11px] text-muted-foreground">
+                            Pets resgatados prontos para encher sua casa de amor no DF e entorno.
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                          Vacinados & Castrados
+                        </span>
                       </div>
-                      <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
-                        Vacinados & Castrados
-                      </span>
-                    </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      {displayedPets.map((pet) => (
-                        <div
-                          key={pet.id}
-                          className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-3 shadow-xs hover:border-emerald-500/40 transition-colors"
-                        >
-                          <div className="space-y-2.5">
-                            <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
-                              <img
-                                src={pet.photo_url}
-                                alt={pet.name}
-                                className="h-full w-full object-cover"
-                              />
-                              <div className="absolute top-2 right-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-md">
-                                {pet.gender === "femea" ? "Fêmea" : "Macho"} • {pet.age_label}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        {displayedPets.map((pet) => (
+                          <div
+                            key={pet.id}
+                            className="flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-3 shadow-xs hover:border-emerald-500/40 transition-colors"
+                          >
+                            <div className="space-y-2.5">
+                              <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
+                                <img
+                                  src={pet.photo_url}
+                                  alt={pet.name}
+                                  className="h-full w-full object-cover"
+                                />
+                                <div className="absolute top-2 right-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-bold text-foreground backdrop-blur-md">
+                                  {pet.gender === "femea" ? "Fêmea" : "Macho"} • {pet.age_label}
+                                </div>
+                              </div>
+                              <div>
+                                <h5 className="font-extrabold text-sm text-foreground">
+                                  {pet.name}
+                                </h5>
+                                <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">
+                                  {pet.description}
+                                </p>
                               </div>
                             </div>
-                            <div>
-                              <h5 className="font-extrabold text-sm text-foreground">{pet.name}</h5>
-                              <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">
-                                {pet.description}
-                              </p>
+
+                            <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
+                              <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
+                                {pet.region}
+                              </span>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  onClose();
+                                  onNavigateToAdoption();
+                                }}
+                                className="h-7 px-3 text-[11px] font-bold rounded-lg"
+                              >
+                                Adotar {pet.name}
+                              </Button>
                             </div>
                           </div>
-
-                          <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
-                            <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-300">
-                              {pet.region}
-                            </span>
-                            <Button
-                              size="sm"
-                              onClick={() => {
-                                onClose();
-                                onNavigateToAdoption();
-                              }}
-                              className="h-7 px-3 text-[11px] font-bold rounded-lg"
-                            >
-                              Adotar {pet.name}
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
                   )}
 
                   {/* Requisitos Obrigatórios */}

@@ -70,7 +70,7 @@ interface AdopterProfile {
   created_at: string;
 }
 
-export function PrivacyPage() {
+function PrivacyPage() {
   const { user, signOut } = useAuth();
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);

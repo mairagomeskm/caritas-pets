@@ -61,10 +61,32 @@ function PerfilPage() {
 
       const local =
         localStorage.getItem(`profile:${user!.id}`) || localStorage.getItem("caritas_user");
-      let parsed: any = {};
+      let parsed: {
+        name?: string;
+        phone?: string;
+        cep?: string;
+        address?: string;
+        profile_type?: string;
+        cpf?: string;
+        cnpj?: string;
+        social_link?: string;
+        proof_path?: string;
+        avatar_url?: string;
+        user_metadata?: {
+          name?: string;
+          phone?: string;
+          cep?: string;
+          address?: string;
+          profile_type?: string;
+        };
+      } = {};
       try {
         if (local) parsed = JSON.parse(local);
       } catch {}
+
+      const rawType = parsed.profile_type || parsed.user_metadata?.profile_type || "adotante";
+      const profile_type: keyof typeof TYPE_LABEL =
+        rawType === "ong" || rawType === "protetor" ? rawType : "adotante";
 
       return {
         id: user!.id,
@@ -73,7 +95,7 @@ function PerfilPage() {
         phone: parsed.phone || parsed.user_metadata?.phone || "(61) 99999-9999",
         cep: parsed.cep || parsed.user_metadata?.cep || "70000-000",
         address: parsed.address || parsed.user_metadata?.address || "Brasília - DF",
-        profile_type: parsed.profile_type || parsed.user_metadata?.profile_type || "adotante",
+        profile_type,
         cpf: parsed.cpf || "",
         cnpj: parsed.cnpj || "",
         social_link: parsed.social_link || "",
@@ -145,10 +167,7 @@ function PerfilPage() {
       } catch {}
 
       if (profile) {
-        localStorage.setItem(
-          `profile:${user.id}`,
-          JSON.stringify({ ...profile, proof_path }),
-        );
+        localStorage.setItem(`profile:${user.id}`, JSON.stringify({ ...profile, proof_path }));
       }
       setFile(null);
       toast.success("Comprovante de residência enviado com sucesso!");

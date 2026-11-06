@@ -76,7 +76,8 @@ function Index() {
   const [selectedPartner, setSelectedPartner] = useState<PartnerOrg | null>(null);
   const [partnerPixModal, setPartnerPixModal] = useState<PartnerOrg | null>(null);
   const isRegistered =
-    !!user || (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
+    !!user ||
+    (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
 
   const { data: realPets = [] } = useQuery({
     queryKey: ["home-pets"],
@@ -103,7 +104,7 @@ function Index() {
         if (error || !data || data.length === 0) {
           return INITIAL_MISSING_PETS.slice(0, 3);
         }
-        const filtered = data.filter((d: any) => {
+        const filtered = data.filter((d: { name?: string | null }) => {
           const n = (d.name || "").toLowerCase();
           return n !== "caramelo" && n !== "nina";
         });
@@ -279,11 +280,7 @@ function Index() {
               </p>
             </div>
             <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button
-                size="default"
-                className="font-bold gap-2"
-                onClick={() => setAuthOpen(true)}
-              >
+              <Button size="default" className="font-bold gap-2" onClick={() => setAuthOpen(true)}>
                 <Heart className="h-4 w-4 fill-current" /> Cadastre-se para Ver os Pets
               </Button>
               <Button

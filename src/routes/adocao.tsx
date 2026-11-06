@@ -60,7 +60,8 @@ function AdocaoPage() {
   const { user, setAuthOpen } = useAuth();
   const navigate = useNavigate();
   const isRegistered =
-    !!user || (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
+    !!user ||
+    (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
 
   const { data: dbPets = [] } = useQuery({
     queryKey: ["pets", "disponivel"],
@@ -252,7 +253,9 @@ function AdocaoPage() {
           {/* Grade de Pets */}
           {list.length === 0 ? (
             <div className="vintage-card p-12 text-center space-y-3">
-              <p className="text-xl font-bold text-primary">Nenhum pet encontrado com esses filtros.</p>
+              <p className="text-xl font-bold text-primary">
+                Nenhum pet encontrado com esses filtros.
+              </p>
               <p className="text-sm text-muted-foreground">
                 Experimente mudar a espécie ou selecionar "Todas as Regiões".
               </p>

@@ -74,7 +74,12 @@ export function FloatingHeader({ showBack, onBack, onMenu, showAuth, onAuth, onF
               Entrar / Cadastrar
             </Button>
           ) : (
-            <Button asChild size="sm" variant="outline" className="rounded-full border-primary/40 font-bold gap-1.5">
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="rounded-full border-primary/40 font-bold gap-1.5"
+            >
               <Link to="/perfil">
                 <UserCheck className="h-4 w-4 text-primary" />
                 <span className="hidden sm:inline">Completar Perfil</span>

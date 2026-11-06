@@ -1,2 +1,8 @@
+[project]
+name = "caritas-pets"
+version = "1.0.0"
+description = "Backend FastAPI para a plataforma Carita's Pets"
+requires-python = ">=3.11"
+
 [tool.vercel.fastapi.static]
 cdn = false

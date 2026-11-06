@@ -58,7 +58,7 @@ export const Route = createFileRoute("/desaparecidos")({
   component: DesaparecidosPage,
 });
 
-export function DesaparecidosPage() {
+function DesaparecidosPage() {
   // Filtros em tempo real
   const [selectedSpecies, setSelectedSpecies] = useState<"Todos" | "Gatos" | "Cachorros">("Todos");
   const [selectedRegion, setSelectedRegion] = useState<string>("Todas as regiões");
@@ -120,7 +120,23 @@ export function DesaparecidosPage() {
         }
 
         // Mapeia colunas do banco com suporte a schemas legados ou novos
-        return (data as any[])
+        type RawMissingRow = {
+          id?: string;
+          name?: string;
+          species?: "Gato" | "Cachorro";
+          sex_age?: string;
+          region?: string;
+          location?: string;
+          last_seen?: string;
+          photo_url?: string | null;
+          description?: string | null;
+          guardian_name?: string;
+          contact?: string;
+          phone?: string | null;
+          reward?: string | null;
+          created_at?: string;
+        };
+        return (data as RawMissingRow[])
           .filter((item) => {
             // Remove animais genéricos antigos se existirem no banco
             const n = (item.name || "").toLowerCase();
@@ -132,7 +148,7 @@ export function DesaparecidosPage() {
             const rawContact = item.contact || item.phone || "";
             return {
               id: item.id || `remote-${item.name}-${Math.random()}`,
-              name: item.name,
+              name: item.name || "Pet Desaparecido",
               species:
                 item.species || (rawDesc.toLowerCase().includes("gato") ? "Gato" : "Cachorro"),
               sex_age: item.sex_age || "Idade não informada",

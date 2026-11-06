@@ -3,8 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 export interface LocalConv {
   id: string;
   kind: "pet" | "support";
-  pet_id?: string;
+  pet_id?: string | null;
   adopter_id: string;
+  protector_id?: string | null;
+  pinned_message_id?: string | null;
   title: string;
   last_message_at: string;
   pets?: { name: string; photo_url?: string } | null;

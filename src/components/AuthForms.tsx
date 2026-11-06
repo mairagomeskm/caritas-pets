@@ -141,7 +141,11 @@ function Login() {
         const effectiveUser =
           loggedInUser ??
           ({
-            id: "usr_" + btoa(cleanEmail).replace(/[^a-zA-Z0-9]/g, "").slice(0, 16),
+            id:
+              "usr_" +
+              btoa(cleanEmail)
+                .replace(/[^a-zA-Z0-9]/g, "")
+                .slice(0, 16),
             email: cleanEmail,
             app_metadata: {},
             user_metadata: { name: cleanEmail.split("@")[0], profile_type: "adotante" },
