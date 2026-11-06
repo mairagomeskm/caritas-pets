@@ -15,6 +15,7 @@ for p in [str(BACKEND_DIR), str(ROOT_DIR)]:
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -28,7 +29,8 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Middlewares de segurança e CORS
+# Middlewares de segurança, compressão GZip e CORS
+app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -38,6 +40,16 @@ app.add_middleware(
 )
 app.add_middleware(CsrfProtectionMiddleware)
 app.add_middleware(ErrorHandlingMiddleware)
+
+@app.middleware("http")
+async def static_cache_headers(request, call_next):
+    response = await call_next(request)
+    p = request.url.path
+    if p.startswith("/assets/"):
+        response.headers.setdefault("Cache-Control", "public, max-age=31536000, immutable")
+    elif p.startswith("/pets/") or p.endswith((".jpg", ".jpeg", ".png", ".webp", ".svg", ".ico")):
+        response.headers.setdefault("Cache-Control", "public, max-age=86400")
+    return response
 
 # Rotas de API
 app.include_router(retention.router, prefix="/api")
@@ -109,12 +121,17 @@ async def catch_all_spa(full_path: str):
     # 1. Se for um arquivo estático compilado em dist
     candidate_dist = DIST_DIR / full_path
     if candidate_dist.is_file():
-        return FileResponse(candidate_dist)
+        cache_hdr = (
+            "public, max-age=31536000, immutable"
+            if full_path.startswith("assets/")
+            else "public, max-age=86400"
+        )
+        return FileResponse(candidate_dist, headers={"Cache-Control": cache_hdr})
 
     # 2. Se for um arquivo estático na pasta public
     candidate_pub = PUBLIC_DIR / full_path
     if candidate_pub.is_file():
-        return FileResponse(candidate_pub)
+        return FileResponse(candidate_pub, headers={"Cache-Control": "public, max-age=86400"})
 
     # 3. Fallback de SPA para o index.html do Vite
     index_file = DIST_DIR / "index.html"

@@ -1,8 +1,43 @@
 import { spawn } from "child_process";
 import fs from "fs";
+import path from "path";
 
-function startTunnel() {
-  console.log("Iniciando conexao com o tunel publico na nuvem...");
+const cfCandidates = [
+  process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, "cloudflared", "cloudflared.exe"),
+  "cloudflared.exe",
+  "cloudflared",
+].filter(Boolean);
+
+const cfBin = cfCandidates.find((p) => p.includes(path.sep) && fs.existsSync(p));
+
+function startCloudflareTunnel(bin) {
+  console.log("Iniciando Cloudflare Tunnel de alta velocidade (CDN Brasil)...");
+  const child = spawn(bin, ["tunnel", "--no-autoupdate", "--url", "http://127.0.0.1:8080"], {
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+
+  const handleOutput = (data) => {
+    const text = data.toString();
+    const match = text.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+    if (match) {
+      const url = match[0];
+      fs.writeFileSync("tunnel_url.txt", url);
+      console.log("\n==========================================");
+      console.log("LINK PUBLICO CLOUDFLARE ATIVO: " + url);
+      console.log("==========================================\n");
+    }
+  };
+
+  child.stdout.on("data", handleOutput);
+  child.stderr.on("data", handleOutput);
+  child.on("close", (code) => {
+    console.log(`Cloudflare Tunnel finalizado (${code}). Reconectando em 2s...`);
+    setTimeout(() => startCloudflareTunnel(bin), 2000);
+  });
+}
+
+function startSshTunnel() {
+  console.log("Iniciando conexao com o tunel publico SSH...");
   const child = spawn(
     "ssh",
     [
@@ -38,16 +73,11 @@ function startTunnel() {
 
   child.stdout.on("data", handleOutput);
   child.stderr.on("data", handleOutput);
-
-  child.on("close", (code) => {
-    console.log(`Tunel finalizado (codigo ${code}). Reconectando em 3s...`);
-    setTimeout(startTunnel, 3000);
-  });
-
-  child.on("error", (err) => {
-    console.error("Erro no tunel:", err.message);
-    setTimeout(startTunnel, 3000);
-  });
+  child.on("close", () => setTimeout(startSshTunnel, 3000));
 }
 
-startTunnel();
+if (cfBin) {
+  startCloudflareTunnel(cfBin);
+} else {
+  startSshTunnel();
+}
