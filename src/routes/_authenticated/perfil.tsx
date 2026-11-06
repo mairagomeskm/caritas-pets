@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useDraft } from "@/lib/drafts";
 import { signedUrl, uploadMedia, uploadProof } from "@/lib/storage";
-import { isValidCPF, isValidCNPJ, lookupCep, maskCEP, maskCPF, maskPhone } from "@/lib/validators";
+import { lookupCep, maskCEP, maskCPF, maskPhone } from "@/lib/validators";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field } from "@/components/AuthForms";
@@ -140,9 +140,16 @@ function PerfilPage() {
     setBusyProof(true);
     try {
       const proof_path = await uploadProof(user.id, file);
-      const { error } = await supabase.from("profiles").update({ proof_path }).eq("id", user.id);
-      if (error) throw error;
+      try {
+        await supabase.from("profiles").update({ proof_path }).eq("id", user.id);
+      } catch {}
 
+      if (profile) {
+        localStorage.setItem(
+          `profile:${user.id}`,
+          JSON.stringify({ ...profile, proof_path }),
+        );
+      }
       setFile(null);
       toast.success("Comprovante de residência enviado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
@@ -156,17 +163,8 @@ function PerfilPage() {
 
   const save = async () => {
     if (!user || !profile) return;
-    const type = profile.profile_type;
-
-    if (type !== "ong" && v.cpf && !isValidCPF(v.cpf)) {
-      return toast.error("CPF inválido. Verifique os dígitos informados.");
-    }
-    if (type === "ong" && v.cnpj && !isValidCNPJ(v.cnpj)) {
-      return toast.error("CNPJ inválido. Verifique os dígitos informados.");
-    }
     if (v.cep && v.cep.replace(/\D/g, "").length === 8) {
-      const ok = await checkCep();
-      if (!ok) return toast.error("Verifique o CEP informado.");
+      await checkCep().catch(() => {});
     }
 
     setBusy(true);

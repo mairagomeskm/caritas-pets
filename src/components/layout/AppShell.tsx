@@ -153,7 +153,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </li>
               ))}
             <li>
-              {user ? (
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setAuthOpen(true);
+                }}
+                className="flex w-full items-center gap-3 px-6 py-3.5 hover:bg-card/60"
+              >
+                <User className="h-5 w-5 text-primary" />{" "}
+                {user ? "Novo Cadastro / Trocar Conta" : "Entrar / Cadastrar"}
+              </button>
+            </li>
+            {user && (
+              <li>
                 <button
                   onClick={() => {
                     setMenuOpen(false);
@@ -163,18 +175,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <LogOut className="h-5 w-5 text-primary" /> Sair
                 </button>
-              ) : (
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    setAuthOpen(true);
-                  }}
-                  className="flex w-full items-center gap-3 px-6 py-3.5 hover:bg-card/60"
-                >
-                  <User className="h-5 w-5 text-primary" /> Entrar / Cadastrar
-                </button>
-              )}
-            </li>
+              </li>
+            )}
           </ul>
         </SheetContent>
       </Sheet>

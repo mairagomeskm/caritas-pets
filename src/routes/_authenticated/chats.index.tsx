@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { LifeBuoy, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getLocalConversations } from "@/lib/chat";
 
 export const Route = createFileRoute("/_authenticated/chats/")({
   head: () => ({
@@ -17,12 +18,14 @@ function ChatsPage() {
   const { data = [] } = useQuery({
     queryKey: ["conversations"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("conversations")
-        .select("id, kind, title, last_message_at, pets(name, photo_url)")
-        .order("last_message_at", { ascending: false });
-      if (error) throw error;
-      return data;
+      try {
+        const { data, error } = await supabase
+          .from("conversations")
+          .select("id, kind, title, last_message_at, pets(name, photo_url)")
+          .order("last_message_at", { ascending: false });
+        if (!error && data && data.length > 0) return data;
+      } catch {}
+      return getLocalConversations();
     },
   });
   return (

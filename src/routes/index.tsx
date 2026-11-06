@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
-import type { Pet } from "@/types";
+import { useMemo, useState } from "react";
+import type { Pet, PartnerOrg } from "@/types";
 import { supabase } from "@/integrations/supabase/client";
-import { VERIFIED_REAL_PETS } from "@/data";
+import { VERIFIED_REAL_PETS, PARTNERS } from "@/data";
 import { INITIAL_MISSING_PETS } from "@/data/missing";
+import { PartnerCard, PartnerModal, PartnerPixModal } from "@/components/community";
 import {
   Search,
   HeartHandshake,
@@ -72,6 +73,8 @@ const URGENT_CAMPAIGNS = [
 function Index() {
   const navigate = useNavigate();
   const { user, setAuthOpen } = useAuth();
+  const [selectedPartner, setSelectedPartner] = useState<PartnerOrg | null>(null);
+  const [partnerPixModal, setPartnerPixModal] = useState<PartnerOrg | null>(null);
   const isRegistered =
     !!user || (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
 
@@ -373,6 +376,45 @@ function Index() {
         )}
       </section>
 
+      {/* ONGs e Projetos Parceiros no DF */}
+      <section className="space-y-6">
+        <div className="flex items-end justify-between border-b border-primary/20 pb-4">
+          <div>
+            <span className="text-xs uppercase font-bold text-primary tracking-widest">
+              Rede Credenciada
+            </span>
+            <h2 className="text-3xl font-extrabold text-foreground tracking-tight mt-1">
+              ONGs e Projetos Parceiros no DF
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Clique em qualquer organização parceira para abrir o perfil completo, protocolos e
+              formas de apoio.
+            </p>
+          </div>
+
+          <Button
+            asChild
+            variant="ghost"
+            className="text-primary font-bold text-sm hover:bg-primary/10 gap-1 hidden sm:inline-flex"
+          >
+            <Link to="/comunidade">
+              Ver comunidade <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          {PARTNERS.map((partner) => (
+            <PartnerCard
+              key={partner.id}
+              partner={partner}
+              onSelect={setSelectedPartner}
+              onOpenPix={setPartnerPixModal}
+            />
+          ))}
+        </div>
+      </section>
+
       {/* Urgent Campaigns Preview with PIX of Any Amount */}
       <section className="space-y-6">
         <div className="flex items-end justify-between border-b border-primary/20 pb-4">
@@ -563,6 +605,19 @@ function Index() {
           })}
         </div>
       </section>
+
+      <PartnerModal
+        partner={selectedPartner}
+        isOpen={!!selectedPartner}
+        onClose={() => setSelectedPartner(null)}
+        onNavigateToAdoption={() => navigate({ to: "/adocao" })}
+      />
+
+      <PartnerPixModal
+        partner={partnerPixModal}
+        isOpen={!!partnerPixModal}
+        onClose={() => setPartnerPixModal(null)}
+      />
     </div>
   );
 }

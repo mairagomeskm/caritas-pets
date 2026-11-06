@@ -1,6 +1,5 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AuthForms } from "@/components/AuthForms";
-import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -18,12 +17,10 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { user } = useAuth();
-  if (user) return <Navigate to="/" />;
   return (
     <div className="vintage-card mx-auto max-w-md p-6">
-      <h1 className="mb-4 mt-6 rounded-lg bg-white px-4 py-2 font-bold text-3xl text-primary">
-        Entre para continuar
+      <h1 className="mb-4 mt-2 rounded-lg bg-white px-4 py-2 font-bold text-3xl text-primary">
+        Cadastro e Acesso
       </h1>
       <AuthForms />
     </div>

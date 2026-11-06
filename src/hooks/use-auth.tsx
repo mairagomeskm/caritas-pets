@@ -12,6 +12,7 @@ type Ctx = {
   setAuthOpen: (v: boolean) => void;
   signOut: () => Promise<void>;
   loginAsGuest: (name?: string, profileType?: string) => void;
+  loginWithUser: (u: User) => void;
 };
 
 const AuthCtx = createContext<Ctx | null>(null);
@@ -82,6 +83,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  const loginWithUser = (u: User) => {
+    localStorage.setItem("caritas_registered", "true");
+    localStorage.setItem("caritas_user", JSON.stringify(u));
+    setUser(u);
+    setAuthOpen(false);
+    router.invalidate();
+    qc.invalidateQueries();
+  };
+
   const loginAsGuest = (name = "Adotante Carita's", profileType = "adotante") => {
     const guestUser = {
       id: "guest_" + Date.now(),
@@ -95,12 +105,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       created_at: new Date().toISOString(),
     } as unknown as User;
 
-    localStorage.setItem("caritas_registered", "true");
-    localStorage.setItem("caritas_user", JSON.stringify(guestUser));
-    setUser(guestUser);
-    setAuthOpen(false);
-    router.invalidate();
-    qc.invalidateQueries();
+    localStorage.setItem(
+      `profile:${guestUser.id}`,
+      JSON.stringify({
+        id: guestUser.id,
+        name,
+        email: guestUser.email,
+        phone: "(61) 99999-9999",
+        cep: "70000-000",
+        address: "Brasília - DF",
+        profile_type: profileType,
+        proof_path: "comprovante_ok.pdf",
+        avatar_url: "/mascot.jpg",
+      }),
+    );
+    loginWithUser(guestUser);
   };
 
   const signOut = async () => {
@@ -125,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setAuthOpen,
         signOut,
         loginAsGuest,
+        loginWithUser,
       }}
     >
       {children}

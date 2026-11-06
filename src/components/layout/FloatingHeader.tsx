@@ -8,6 +8,7 @@ import {
   Search,
   Newspaper,
   Sparkles,
+  UserCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -68,9 +69,16 @@ export function FloatingHeader({ showBack, onBack, onMenu, showAuth, onAuth, onF
           </button>
         </div>
         <div className="flex items-center gap-2">
-          {showAuth && (
+          {showAuth ? (
             <Button size="sm" className="rounded-full" onClick={onAuth}>
               Entrar / Cadastrar
+            </Button>
+          ) : (
+            <Button asChild size="sm" variant="outline" className="rounded-full border-primary/40 font-bold gap-1.5">
+              <Link to="/perfil">
+                <UserCheck className="h-4 w-4 text-primary" />
+                <span className="hidden sm:inline">Completar Perfil</span>
+              </Link>
             </Button>
           )}
           <button

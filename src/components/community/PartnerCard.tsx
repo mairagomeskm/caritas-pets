@@ -14,7 +14,18 @@ export function PartnerCard({ partner, onSelect, onOpenPix }: PartnerCardProps) 
     : null;
 
   return (
-    <div className="vintage-card group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div
+      onClick={() => onSelect(partner)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(partner);
+        }
+      }}
+      className="vintage-card cursor-pointer group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+    >
       <div className="space-y-4">
         {/* Topo do Card com Logo e Selo */}
         <div className="flex items-start justify-between gap-3">
@@ -86,17 +97,25 @@ export function PartnerCard({ partner, onSelect, onOpenPix }: PartnerCardProps) 
       <div className="mt-5 space-y-2 border-t border-border/40 pt-4">
         <div className="grid grid-cols-2 gap-2">
           <Button
+            type="button"
             size="sm"
             variant="outline"
-            onClick={() => onOpenPix(partner)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenPix(partner);
+            }}
             className="rounded-xl border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 text-xs font-bold gap-1 shadow-xs"
           >
             <Heart className="h-3.5 w-3.5 fill-emerald-600/30 text-emerald-600" />
             Fazer Doação
           </Button>
           <Button
+            type="button"
             size="sm"
-            onClick={() => onSelect(partner)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(partner);
+            }}
             className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold gap-1 shadow-xs"
           >
             <span>Ver Perfil</span>

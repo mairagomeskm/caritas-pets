@@ -1,8 +1,9 @@
 import { useState } from "react";
 import type { PartnerOrg } from "@/types/partner";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Sparkles,
   MapPin,
@@ -14,13 +15,11 @@ import {
   ShieldCheck,
   Copy,
   Check,
-  Home,
-  Award,
   ExternalLink,
   MessageCircle,
   Package,
   HeartHandshake,
-  Users,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { RESGATADOS_UNB_PETS, SPIKE_PET, CHICO_PET, MARI_PET, NALA_PET } from "@/data/pets";
@@ -43,6 +42,10 @@ export function PartnerModal({
 }: PartnerModalProps) {
   const [copiedPix, setCopiedPix] = useState(false);
   const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+  const { user, setAuthOpen } = useAuth();
+  const isRegistered =
+    !!user ||
+    (typeof window !== "undefined" && localStorage.getItem("caritas_registered") === "true");
 
   if (!partner) return null;
 
@@ -79,6 +82,8 @@ export function PartnerModal({
     <>
       <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <DialogContent className="max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl p-0 border border-primary/20">
+          <DialogTitle className="sr-only">{partner.name}</DialogTitle>
+          <DialogDescription className="sr-only">{partner.summary}</DialogDescription>
           <div>
             {/* Topo / Capa do Perfil com Gradiente Customizado */}
             <div
@@ -306,6 +311,31 @@ export function PartnerModal({
                 {/* Aba 3: Critérios de Adoção e Ver Animais */}
                 <TabsContent value="adocao" className="space-y-5 pt-2">
                   {/* Animais Reais da ONG */}
+                  {!isRegistered ? (
+                    <div className="rounded-2xl border-2 border-primary/30 bg-accent/30 p-6 text-center space-y-3">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 text-primary">
+                        <Lock className="h-6 w-6" />
+                      </div>
+                      <h4 className="font-extrabold text-base text-foreground">
+                        Pets de {partner.name} visíveis após o cadastro
+                      </h4>
+                      <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                        Faça seu cadastro rápido (sem confirmação de e-mail) para liberar os pets
+                        disponíveis para adoção desta ONG.
+                      </p>
+                      <Button
+                        size="sm"
+                        className="font-bold gap-1.5"
+                        onClick={() => {
+                          onClose();
+                          setAuthOpen(true);
+                        }}
+                      >
+                        <Heart className="h-3.5 w-3.5 fill-current" /> Fazer Cadastro para Ver os
+                        Pets
+                      </Button>
+                    </div>
+                  ) : (
                   <div className="space-y-3 pb-3">
                     <div className="flex items-center justify-between border-b border-border/40 pb-2">
                       <div>
@@ -366,6 +396,7 @@ export function PartnerModal({
                       ))}
                     </div>
                   </div>
+                  )}
 
                   {/* Requisitos Obrigatórios */}
                   <div className="space-y-3 pt-2 border-t border-border/40">

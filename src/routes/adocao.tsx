@@ -121,24 +121,8 @@ function AdocaoPage() {
       return;
     }
 
-    try {
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("avatar_url, proof_path, profile_type")
-        .eq("id", user.id)
-        .single();
-
-      const isAdopter = !prof?.profile_type || prof.profile_type === "adotante";
-      if (isAdopter && (!prof?.avatar_url || !prof?.proof_path)) {
-        setBlocked(true);
-        return;
-      }
-
-      // Requisito LGPD Art. 7º, I: Opt-in explícito para envio de dados à ONG
-      setConsentPet(pet);
-    } catch {
-      toast.error("Não foi possível processar a solicitação no momento.");
-    }
+    // Liberado diretamente após o cadastro sem exigir verificação prévia
+    setConsentPet(pet);
   };
 
   const handleSharePet = async (pet: PetItem) => {

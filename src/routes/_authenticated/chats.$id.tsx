@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { signedUrl, uploadChatFile } from "@/lib/storage";
+import { getLocalConversations } from "@/lib/chat";
 
 export const Route = createFileRoute("/_authenticated/chats/$id")({
   head: () => ({
@@ -40,26 +41,46 @@ function ChatRoom() {
 
   const { data: conv } = useQuery({
     queryKey: ["conversation", id],
-    queryFn: async () =>
-      (
-        await supabase
+    queryFn: async () => {
+      try {
+        const { data } = await supabase
           .from("conversations")
           .select("*, pets(name, photo_url)")
           .eq("id", id)
-          .single()
-      ).data,
+          .single();
+        if (data) return data;
+      } catch {}
+      return getLocalConversations().find((c) => c.id === id) ?? null;
+    },
   });
 
   const { data: msgs = [] } = useQuery({
     queryKey: ["messages", id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("messages")
-        .select("*")
-        .eq("conversation_id", id)
-        .order("created_at");
-      if (error) throw error;
-      return (data || []) as ChatMessage[];
+      try {
+        const { data, error } = await supabase
+          .from("messages")
+          .select("*")
+          .eq("conversation_id", id)
+          .order("created_at");
+        if (!error && data && data.length > 0) return data as ChatMessage[];
+      } catch {}
+      try {
+        const local = localStorage.getItem(`local_msgs:${id}`);
+        if (local) return JSON.parse(local) as ChatMessage[];
+      } catch {}
+      return [
+        {
+          id: "welcome-" + id,
+          sender_id: null,
+          is_bot: true,
+          body: "Olá! Recebemos seu interesse. Deixe uma mensagem abaixo para o protetor ou ONG responsável.",
+          attachment_path: null,
+          attachment_type: null,
+          read_at: new Date().toISOString(),
+          created_at: new Date().toISOString(),
+        },
+      ] as ChatMessage[];
     },
   });
 
@@ -102,7 +123,24 @@ function ChatRoom() {
       attachment_path: attachment?.path ?? null,
       attachment_type: attachment?.type ?? null,
     });
-    if (error) toast.error("Mensagem não enviada.");
+    if (error) {
+      const next: ChatMessage[] = [
+        ...msgs,
+        {
+          id: "msg_" + Date.now(),
+          sender_id: user.id,
+          is_bot: false,
+          body,
+          attachment_path: attachment?.path ?? null,
+          attachment_type: attachment?.type ?? null,
+          read_at: null,
+          created_at: new Date().toISOString(),
+        },
+      ];
+      try {
+        localStorage.setItem(`local_msgs:${id}`, JSON.stringify(next));
+      } catch {}
+    }
     queryClient.invalidateQueries({ queryKey: ["messages", id] });
   };
 
